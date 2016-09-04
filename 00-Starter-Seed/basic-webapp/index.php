@@ -18,8 +18,8 @@
 ?>
 <html>
     <head>
-        <script src="http://code.jquery.com/jquery-2.2.1.min.js" type="text/javascript"></script>
-        <script src="https://cdn.auth0.com/js/lock-9.0.min.js"></script>
+        <script src="http://code.jquery.com/jquery-3.1.0.min.js" type="text/javascript"></script>
+        <script src="http://cdn.auth0.com/js/lock/10.2.2/lock.min.js"></script>
 
         <script type="text/javascript" src="//use.typekit.net/iws6ohy.js"></script>
         <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -58,6 +58,7 @@
                 <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" /></h1>
                 <img class="avatar" src="<?php echo $userInfo['picture'] ?>"/>
                 <h2>Welcome <span class="nickname"><?php echo $userInfo['nickname'] ?></span></h2>
+                <button class="btn-m btn-warning btn-logout">Logout</button>
               </div>
               <?php endif ?>
             </div>
