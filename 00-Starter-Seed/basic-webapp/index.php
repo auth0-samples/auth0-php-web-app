@@ -5,21 +5,27 @@
 
   require __DIR__ . '/dotenv-loader.php';
 
-  $auth0 = new \Auth0\SDK\Auth0(array(
-    'domain'        => getenv('AUTH0_DOMAIN'),
-    'client_id'     => getenv('AUTH0_CLIENT_ID'),
-    'client_secret' => getenv('AUTH0_CLIENT_SECRET'),
-    'redirect_uri'  => getenv('AUTH0_CALLBACK_URL')
-  ));
+  use Auth0\SDK\API\Authentication;
 
+  $domain        = getenv('AUTH0_DOMAIN');
+  $client_id     = getenv('AUTH0_CLIENT_ID');
+  $client_secret = getenv('AUTH0_CLIENT_SECRET');
+  $redirect_uri  = getenv('AUTH0_CALLBACK_URL');
 
-  $userInfo = $auth0->getUser();
+  $auth0 = new Authentication($domain, $client_id);
+
+  $auth0Oauth = $auth0->get_oauth_client($client_secret, $redirect_uri, [
+    'persist_id_token' => true,
+    'persist_refresh_token' => true,
+  ]);
+
+  $userInfo = $auth0Oauth->getUser();
 
 ?>
 <html>
     <head>
         <script src="http://code.jquery.com/jquery-3.1.0.min.js" type="text/javascript"></script>
-        <script src="http://cdn.auth0.com/js/lock/10.2.2/lock.min.js"></script>
+        <script src="http://cdn.auth0.com/js/lock/10.2/lock.min.js"></script>
 
         <script type="text/javascript" src="//use.typekit.net/iws6ohy.js"></script>
         <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
