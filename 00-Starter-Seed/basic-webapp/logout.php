@@ -13,7 +13,7 @@ $auth0 = new Auth0([
   'client_id' => $client_id,
   'client_secret' => $client_secret,
   'redirect_uri' => $redirect_uri,
-  'audience' => 'urn:test:api',
+  'audience' => 'https://' . $domain . '/userinfo',
   'persist_id_token' => true,
   'persist_refresh_token' => true,
 ]);
