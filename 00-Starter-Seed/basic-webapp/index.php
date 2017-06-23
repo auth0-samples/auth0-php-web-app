@@ -17,18 +17,20 @@
     'client_id' => $client_id,
     'client_secret' => $client_secret,
     'redirect_uri' => $redirect_uri,
-    'audience' => 'urn:test:api',
+    'audience' => 'https://' . $domain . '/userinfo',
     'persist_id_token' => true,
+    'persist_access_token' => true,
     'persist_refresh_token' => true,
   ]);
 
   $userInfo = $auth0->getUser();
 
+
 ?>
 <html>
     <head>
         <script src="http://code.jquery.com/jquery-3.1.0.min.js" type="text/javascript"></script>
-        <script src="http://cdn.auth0.com/js/lock/10.14/lock.min.js"></script>
+        <script src="https://cdn.auth0.com/js/auth0/8.7/auth0.min.js"></script>
 
         <script type="text/javascript" src="//use.typekit.net/iws6ohy.js"></script>
         <script type="text/javascript">try{Typekit.load();}catch(e){}</script>

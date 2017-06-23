@@ -1,16 +1,16 @@
 $(document).ready(function() {
-
-    var lock = new Auth0Lock(AUTH0_CLIENT_ID, AUTH0_DOMAIN, { auth: {
-          redirectUrl: AUTH0_CALLBACK_URL
-          , responseType: 'code'
-          , params: {
-              scope: 'openid'
-          }
-      }});
+    var webAuth = new auth0.WebAuth({
+      domain: AUTH0_DOMAIN,
+      clientID: AUTH0_CLIENT_ID,
+      redirectUri: AUTH0_CALLBACK_URL,
+      audience: `https://${AUTH0_DOMAIN}/userinfo`,
+      responseType: 'code',
+      scope: 'openid profile'
+    });
 
     $('.btn-login').click(function(e) {
       e.preventDefault();
-      lock.show();
+      webAuth.authorize();
     });
 
     $('.btn-logout').click(function(e) {
