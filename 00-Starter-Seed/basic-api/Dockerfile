@@ -8,6 +8,6 @@ RUN composer self-update
 RUN composer install
 ADD . /app
 
-CMD php -S 0.0.0.0:80
+CMD php -S 0.0.0.0:3001
 
-EXPOSE 80
+EXPOSE 3001
