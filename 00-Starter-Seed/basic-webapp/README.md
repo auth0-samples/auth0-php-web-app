@@ -13,4 +13,14 @@ composer install
 php -S localhost:3000
 ```
 
-The app will be served at [http://localhost:3000/](http://localhost:3000/)
+The app will be served at [http://localhost:3000/](http://localhost:3000/).
+
+## Running the App With Docker
+
+Before starting, make sure you have `docker` installed.
+
+Rename the `.env.example` file to `.env` and populate it like explained [previously](#getting-started).
+
+Execute in command line `sh exec.sh` to run the Docker in Linux, or `.\exec.ps1` to run the Docker in Windows.
+
+The app will be served at [http://localhost:3000/](http://localhost:3000/).
