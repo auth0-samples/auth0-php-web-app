@@ -56,7 +56,7 @@
                 <img src="https://i.cloudup.com/StzWWrY34s.png" />
                 <h3>Auth0 Example</h3>
                 <p>Zero friction identity infrastructure, built for developers</p>
-                <a class="btn btn-primary btn-lg btn-login btn-block" href="login.php">SignIn</a>
+                <a class="btn btn-primary btn-lg btn-login btn-block" href="login.php">Sign In</a>
               </div>
               <?php else: ?>
               <div class="logged-in-box auth0-box logged-in">
