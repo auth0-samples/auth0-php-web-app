@@ -1,5 +1,7 @@
 # Auth0 + PHP Web App Sample
 
+[![CircleCI](https://circleci.com/gh/auth0-samples/auth0-php-web-app.svg?style=svg)](https://circleci.com/gh/auth0-samples/auth0-php-web-app)
+
 This sample demonstrates how to add authorization to a [PHP](http://php.net/) web app using [Auth0](https://auth0.com).
 
 Check the [PHP Quickstart](https://auth0.com/docs/quickstart/webapp/php) to better understand this sample.
