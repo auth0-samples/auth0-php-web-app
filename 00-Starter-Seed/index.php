@@ -56,14 +56,14 @@
                 <img src="https://i.cloudup.com/StzWWrY34s.png" />
                 <h3>Auth0 Example</h3>
                 <p>Zero friction identity infrastructure, built for developers</p>
-                <a class="btn btn-primary btn-lg btn-login btn-block" href="login.php">Sign In</a>
+                <a id="qsLoginBtn" class="btn btn-primary btn-lg btn-login btn-block" href="login.php">Sign In</a>
               </div>
               <?php else: ?>
               <div class="logged-in-box auth0-box logged-in">
                 <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" /></h1>
                 <img class="avatar" src="<?php echo $userInfo['picture'] ?>"/>
                 <h2>Welcome <span class="nickname"><?php echo $userInfo['nickname'] ?></span></h2>
-                <a class="btn btn-warning btn-logout" href="/logout.php">Logout</a>
+                <a id="qsLogoutBtn" class="btn btn-warning btn-logout" href="/logout.php">Logout</a>
               </div>
               <?php endif ?>
             </div>
