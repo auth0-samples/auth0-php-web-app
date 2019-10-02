@@ -14,7 +14,7 @@
   $audience      = getenv('AUTH0_AUDIENCE');
 
   if($audience == ''){
-    $audience = 'https://' . $domain . '/userinfo';
+    $audience = "https://$domain/userinfo";
   }
 
   $auth0 = new Auth0([
@@ -26,7 +26,7 @@
     'scope' => 'openid profile',
     'persist_id_token' => true,
     'persist_access_token' => true,
-    'persist_refresh_token' => true,
+    'persist_refresh_token' => true
   ]);
 
   $userInfo = $auth0->getUser();
@@ -53,15 +53,15 @@
             <div class="login-page clearfix">
               <?php if(!$userInfo): ?>
               <div class="login-box auth0-box before">
-                <img src="https://i.cloudup.com/StzWWrY34s.png" />
+                <img src="https://i.cloudup.com/StzWWrY34s.png" alt="logo" />
                 <h3>Auth0 Example</h3>
                 <p>Zero friction identity infrastructure, built for developers</p>
                 <a id="qsLoginBtn" class="btn btn-primary btn-lg btn-login btn-block" href="login.php">Sign In</a>
               </div>
               <?php else: ?>
               <div class="logged-in-box auth0-box logged-in">
-                <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" /></h1>
-                <img class="avatar" src="<?php echo $userInfo['picture'] ?>"/>
+                <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" alt="logo" /></h1>
+                <img class="avatar" alt="avatar" src="<?php echo $userInfo['picture'] ?>"/>
                 <h2>Welcome <span class="nickname"><?php echo $userInfo['nickname'] ?></span></h2>
                 <a id="qsLogoutBtn" class="btn btn-warning btn-logout" href="/logout.php">Logout</a>
               </div>
