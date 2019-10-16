@@ -1,37 +1,17 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/dotenv-loader.php';
 
-  // Require composer autoloader
-  require __DIR__ . '/vendor/autoload.php';
+$auth0 = new Auth0\SDK\Auth0([
+    'domain' => getenv('AUTH0_DOMAIN'),
+    'client_id' => getenv('AUTH0_CLIENT_ID'),
+    'client_secret' => getenv('AUTH0_CLIENT_SECRET'),
+    'redirect_uri' => getenv('AUTH0_CALLBACK_URL'),
+]);
 
-  require __DIR__ . '/dotenv-loader.php';
-
-  use Auth0\SDK\Auth0;
-
-  $domain        = getenv('AUTH0_DOMAIN');
-  $client_id     = getenv('AUTH0_CLIENT_ID');
-  $client_secret = getenv('AUTH0_CLIENT_SECRET');
-  $redirect_uri  = getenv('AUTH0_CALLBACK_URL');
-  $audience      = getenv('AUTH0_AUDIENCE');
-
-  if($audience == ''){
-    $audience = 'https://' . $domain . '/userinfo';
-  }
-
-  $auth0 = new Auth0([
-    'domain' => $domain,
-    'client_id' => $client_id,
-    'client_secret' => $client_secret,
-    'redirect_uri' => $redirect_uri,
-    'audience' => $audience,
-    'scope' => 'openid profile',
-    'persist_id_token' => true,
-    'persist_access_token' => true,
-    'persist_refresh_token' => true,
-  ]);
-
-  $userInfo = $auth0->getUser();
-
-
+// Set a leeway to handle clock skew issues when validating tokens.
+\Firebase\JWT\JWT::$leeway = 60;
+$userInfo = $auth0->getUser();
 ?>
 <html>
     <head>
@@ -45,8 +25,6 @@
 
         <link href="public/app.css" rel="stylesheet">
 
-
-
     </head>
     <body class="home">
         <div class="container">
@@ -59,11 +37,11 @@
                 <a id="qsLoginBtn" class="btn btn-primary btn-lg btn-login btn-block" href="login.php">Sign In</a>
               </div>
               <?php else: ?>
-              <div class="logged-in-box auth0-box logged-in">
+              <div class="logged-in-box auth0-box logged-in" id="profileDropDown">
                 <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" /></h1>
                 <img class="avatar" src="<?php echo $userInfo['picture'] ?>"/>
                 <h2>Welcome <span class="nickname"><?php echo $userInfo['nickname'] ?></span></h2>
-                <a id="qsLogoutBtn" class="btn btn-warning btn-logout" href="/logout.php">Logout</a>
+                <a id="qsLogoutBtn" class="btn btn-warning btn-logout" href="logout.php">Logout</a>
               </div>
               <?php endif ?>
             </div>
