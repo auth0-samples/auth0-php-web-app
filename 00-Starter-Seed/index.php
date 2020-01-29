@@ -9,8 +9,6 @@ $auth0 = new Auth0\SDK\Auth0([
     'redirect_uri' => getenv('AUTH0_CALLBACK_URL'),
 ]);
 
-// Set a leeway to handle clock skew issues when validating tokens.
-\Firebase\JWT\JWT::$leeway = 60;
 $userInfo = $auth0->getUser();
 ?>
 <html>

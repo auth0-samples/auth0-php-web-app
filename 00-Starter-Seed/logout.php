@@ -8,7 +8,6 @@ $client_id = getenv('AUTH0_CLIENT_ID');
 $auth0 = new Auth0\SDK\Auth0([
     'domain' => $domain,
     'client_id' => $client_id,
-    'client_secret' => getenv('AUTH0_CLIENT_SECRET'),
     'redirect_uri' => getenv('AUTH0_CALLBACK_URL'),
 ]);
 
