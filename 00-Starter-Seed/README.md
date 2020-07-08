@@ -10,6 +10,8 @@ Before starting, make sure you have `composer` and `php` installed.
 
 Copy the `.env.example` file to `.env` and populate it with your app's Domain, Client ID, and Client Secret. These can be retrieved from your [Auth0 dashboard](https://manage.auth0.com).
 
+Populate auth_config.json with settings of your Auth0 SPA. This is need to implement seamless Single Sign On between this PHP application and other Auth0 apps.
+
 ## Running the App
 
 ```bash

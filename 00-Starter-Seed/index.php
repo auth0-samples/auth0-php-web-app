@@ -20,8 +20,12 @@ $userInfo = $auth0->getUser();
         <!-- font awesome from BootstrapCDN -->
         <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
-
         <link href="public/app.css" rel="stylesheet">
+        
+        <?php if(!$userInfo): ?>
+          <script src="https://cdn.auth0.com/js/auth0-spa-js/1.9/auth0-spa-js.production.js"></script>
+          <script src="public/sso.js"></script>
+        <?php endif ?>
 
     </head>
     <body class="home">
