@@ -8,23 +8,23 @@
     "packages": [
         {
             "name": "auth0/auth0-php",
-            "version": "7.8.0",
+            "version": "7.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/auth0/auth0-PHP.git",
-                "reference": "05c538b6c56a57d6d214f6a90e2b6a5d00945a51"
+                "reference": "0611fbabcb802ac63533f1c0ff5bd765e22f4aa3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/auth0/auth0-PHP/zipball/05c538b6c56a57d6d214f6a90e2b6a5d00945a51",
-                "reference": "05c538b6c56a57d6d214f6a90e2b6a5d00945a51",
+                "url": "https://api.github.com/repos/auth0/auth0-PHP/zipball/0611fbabcb802ac63533f1c0ff5bd765e22f4aa3",
+                "reference": "0611fbabcb802ac63533f1c0ff5bd765e22f4aa3",
                 "shasum": ""
             },
             "require": {
                 "auth0/php-jwt": "3.3.4",
                 "ext-json": "*",
                 "ext-openssl": "*",
-                "guzzlehttp/guzzle": "^7.2",
+                "guzzlehttp/guzzle": "^6.0|^7.0",
                 "php": "^7.3 | ^8.0",
                 "psr/simple-cache": "^1.0"
             },
@@ -58,7 +58,7 @@
             ],
             "description": "Auth0 PHP SDK.",
             "homepage": "https://github.com/auth0/auth0-PHP",
-            "time": "2021-04-01T20:29:08+00:00"
+            "time": "2021-05-04T00:30:48+00:00"
         },
         {
             "name": "auth0/php-jwt",
@@ -339,16 +339,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "1.8.1",
+            "version": "1.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "35ea11d335fd638b5882ff1725228b3d35496ab1"
+                "reference": "dc960a912984efb74d0a90222870c72c87f10c91"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/35ea11d335fd638b5882ff1725228b3d35496ab1",
-                "reference": "35ea11d335fd638b5882ff1725228b3d35496ab1",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/dc960a912984efb74d0a90222870c72c87f10c91",
+                "reference": "dc960a912984efb74d0a90222870c72c87f10c91",
                 "shasum": ""
             },
             "require": {
@@ -406,7 +406,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2021-03-21T16:25:00+00:00"
+            "time": "2021-04-26T09:17:50+00:00"
         },
         {
             "name": "phpoption/phpoption",
