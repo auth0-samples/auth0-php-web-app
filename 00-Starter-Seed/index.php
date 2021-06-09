@@ -1,15 +1,38 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
-require __DIR__ . '/dotenv-loader.php';
 
-$auth0 = new Auth0\SDK\Auth0([
-    'domain' => $_ENV['AUTH0_DOMAIN'],
-    'client_id' => $_ENV['AUTH0_CLIENT_ID'],
-    'client_secret' => $_ENV['AUTH0_CLIENT_SECRET'],
-    'redirect_uri' => $_ENV['AUTH0_CALLBACK_URL'],
-]);
+use Auth0\SDK\Exception\StateException;
 
-$userInfo = $auth0->getUser();
+require __DIR__ . '/common.php';
+
+$state = $auth0->getCredentials();
+
+if (! $state) {
+  try {
+    // Attempt code exchange.
+    $auth0->exchange();
+  } catch (StateException $e) {
+    // There was an error during code exchange. Abort session check.
+    $state = null;
+  }
+}
+
+if ($state !== null && $state->accessTokenExpired) {
+  try {
+    // Token has expired, attempt to renew it.
+    $auth0->renew();
+  } catch (StateException $e) {
+    // There was an error during access token renewal. Clear the session.
+    $auth0->clear();
+    $state = null;
+  }
+}
+
+// After callback, redirect to / to remove callback params and avoid invalid state errors if page is refreshed.
+if ($auth0->getRequestParameter('code')) {
+  header("Location: /");
+  exit;
+}
+
 ?>
 <html>
     <head>
@@ -27,20 +50,23 @@ $userInfo = $auth0->getUser();
     <body class="home">
         <div class="container">
             <div class="login-page clearfix">
-              <?php if(!$userInfo): ?>
-              <div class="login-box auth0-box before">
-                <img src="https://i.cloudup.com/StzWWrY34s.png" />
-                <h3>Auth0 Example</h3>
-                <p>Zero friction identity infrastructure, built for developers</p>
-                <a id="qsLoginBtn" class="btn btn-primary btn-lg btn-login btn-block" href="login.php">Sign In</a>
-              </div>
+              <?php if(!$state): ?>
+                <div class="login-box auth0-box before">
+                  <img src="https://i.cloudup.com/StzWWrY34s.png" />
+                  <h3>Auth0 Example</h3>
+                  <p>Zero friction identity infrastructure, built for developers</p>
+                  <a id="qsLoginBtn" class="btn btn-primary btn-lg btn-login btn-block" href="login.php">Sign In</a>
+                </div>
               <?php else: ?>
-              <div class="logged-in-box auth0-box logged-in" id="profileDropDown">
-                <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" /></h1>
-                <img class="avatar" src="<?php echo $userInfo['picture'] ?>"/>
-                <h2>Welcome <span class="nickname"><?php echo $userInfo['nickname'] ?></span></h2>
-                <a id="qsLogoutBtn" class="btn btn-warning btn-logout" href="logout.php">Logout</a>
-              </div>
+                <div class="logged-in-box auth0-box logged-in" id="profileDropDown">
+                  <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" /></h1>
+                  <h2>
+                    <img class="avatar" src="<?php echo $state->user['picture'] ?>"/>
+                    <span>Welcome <span class="nickname"><?php echo $state->user['nickname'] ?></span></span>
+                  </h2>
+                  <textarea><?php htmlspecialchars(print_r($state->user)); ?></textarea>
+                  <a id="qsLogoutBtn" class="btn btn-warning btn-logout" href="logout.php">Logout</a>
+                </div>
               <?php endif ?>
             </div>
         </div>
