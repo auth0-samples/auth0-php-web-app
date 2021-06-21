@@ -1,74 +1,120 @@
 <?php
 
+declare(strict_types=1);
+
+require(join(DIRECTORY_SEPARATOR, [__DIR__, 'vendor', 'autoload.php']));
+
+use Auth0\SDK\Auth0;
+use Auth0\SDK\Configuration\SdkConfiguration;
 use Auth0\SDK\Exception\StateException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-require __DIR__ . '/common.php';
+$templates = new League\Plates\Engine('templates');
+$router = new League\Route\Router;
+$response = new Laminas\Diactoros\Response;
+$request = Laminas\Diactoros\ServerRequestFactory::fromGlobals(
+  $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
+);
 
-$state = $auth0->getCredentials();
+set_exception_handler(function (\Throwable $e) use ($templates, $request) {
+  echo $templates->render('error', [
+    'code' => $e->getCode(),
+    'error' => $e->getMessage(),
+    'file' => $e->getFile(),
+    'line' => $e->getLine(),
+    'backtrace' => $e->getTrace(),
+    'cookies' => $_COOKIE,
+    'loginUri' => $request->getUri()->withPath('/login')->withQuery(''),
+  ]);
+});
 
-if (! $state) {
-  try {
-    // Attempt code exchange.
-    $auth0->exchange();
-  } catch (StateException $e) {
-    // There was an error during code exchange. Abort session check.
-    $state = null;
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+$dotenv->required([
+    'AUTH0_CLIENT_ID',
+    'AUTH0_DOMAIN'
+]);
+
+$configuration = new SdkConfiguration(
+    domain: $_ENV['AUTH0_DOMAIN'],
+    clientId: $_ENV['AUTH0_CLIENT_ID'],
+    cookieSecret: 'THIS_IS_A_TEST_OF_THE_EMERGENCY_BROADCAST_SYSTEM',
+    cookieExpires: 60 * 60 * 24,
+    clientSecret: $_ENV['AUTH0_CLIENT_SECRET'],
+    audience: [ $_ENV['AUTH0_AUDIENCE'] ?? null, $_ENV['AUTH0_CLIENT_ID'] ],
+    redirectUri: (string) $request->getUri()->withPath('/callback')->withQuery(''),
+    // organization: isset($_ENV['AUTH0_ORGANIZATION']) ? [ $_ENV['AUTH0_ORGANIZATION'] ] : null,
+    scope: [ 'openid', 'profile', 'email', 'offline_access' ]
+);
+
+$auth0 = new Auth0($configuration);
+
+$session = $auth0->getCredentials();
+
+$router->map('GET', '/', function (ServerRequestInterface $request) use ($response, $auth0, $session, $templates): ResponseInterface {
+  if ($session !== null && $session->accessTokenExpired) {
+    try {
+      // Token has expired, attempt to renew it.
+      $auth0->renew();
+    } catch (StateException $e) {
+      // There was an error during access token renewal. Clear the session.
+      $auth0->clear();
+      $state = null;
+    }
   }
-}
 
-if ($state !== null && $state->accessTokenExpired) {
-  try {
-    // Token has expired, attempt to renew it.
-    $auth0->renew();
-  } catch (StateException $e) {
-    // There was an error during access token renewal. Clear the session.
-    $auth0->clear();
-    $state = null;
-  }
-}
+  $templateName = 'logged-' . ($session === null ? 'out' : 'in');
 
-// After callback, redirect to / to remove callback params and avoid invalid state errors if page is refreshed.
-if ($auth0->getRequestParameter('code')) {
-  header("Location: /");
-  exit;
-}
+  // Render the 'templates/index.php' template.
+  $response->getBody()->write($templates->render($templateName, [
+    'session' => $session,
+    'cookies' => $_COOKIE,
+    'loginUri' => $request->getUri()->withPath('/login')->withQuery(''),
+    'logoutUri' => $request->getUri()->withPath('/logout')->withQuery('')
+  ]));
 
-?>
-<html>
-    <head>
-        <script src="http://code.jquery.com/jquery-3.1.0.min.js" type="text/javascript"></script>
+  // Send response to browser.
+  return $response;
+});
 
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+$router->map('GET', '/callback', function (ServerRequestInterface $request) use($response, $auth0): ResponseInterface {
+  $auth0->exchange();
 
-        <!-- font awesome from BootstrapCDN -->
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
+  // Redirect to your application's index route.
+  $response = new Laminas\Diactoros\Response\RedirectResponse($request->getUri()->withPath('/')->withQuery(''));
 
-        <link href="public/app.css" rel="stylesheet">
+  // Send response to browser.
+  return $response;
+});
 
-    </head>
-    <body class="home">
-        <div class="container">
-            <div class="login-page clearfix">
-              <?php if(!$state): ?>
-                <div class="login-box auth0-box before">
-                  <img src="https://i.cloudup.com/StzWWrY34s.png" />
-                  <h3>Auth0 Example</h3>
-                  <p>Zero friction identity infrastructure, built for developers</p>
-                  <a id="qsLoginBtn" class="btn btn-primary btn-lg btn-login btn-block" href="login.php">Sign In</a>
-                </div>
-              <?php else: ?>
-                <div class="logged-in-box auth0-box logged-in" id="profileDropDown">
-                  <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" /></h1>
-                  <h2>
-                    <img class="avatar" src="<?php echo $state->user['picture'] ?>"/>
-                    <span>Welcome <span class="nickname"><?php echo $state->user['nickname'] ?></span></span>
-                  </h2>
-                  <textarea><?php htmlspecialchars(print_r($state->user)); ?></textarea>
-                  <a id="qsLogoutBtn" class="btn btn-warning btn-logout" href="logout.php">Logout</a>
-                </div>
-              <?php endif ?>
-            </div>
-        </div>
-    </body>
-</html>
+$router->map('GET', '/login', function (ServerRequestInterface $request) use($response, $auth0): ResponseInterface {
+  // Build the login uri.
+  $loginUri = $auth0->authentication()->getLoginLink();
+
+  // Redirect to Auth0's Universal Login page.
+  $response = new Laminas\Diactoros\Response\RedirectResponse($loginUri);
+
+  // Send response to browser.
+  return $response;
+});
+
+$router->map('GET', '/logout', function (ServerRequestInterface $request) use($auth0): ResponseInterface {
+  // Clear our local session.
+  $auth0->clear();
+
+  // Build the logout uri.
+  $logoutUri = $auth0->authentication()->getLogoutLink(
+    returnUri: (string) $request->getUri()->withPath('/')
+  );
+
+  // Redirect to Auth0's /logout endpoint to finish logout process.
+  $response = new Laminas\Diactoros\Response\RedirectResponse($logoutUri);
+
+  // Send response to browser.
+  return $response;
+});
+
+$response = $router->dispatch($request);
+
+(new Laminas\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);

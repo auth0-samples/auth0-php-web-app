@@ -5,7 +5,12 @@
     "vlucas/phpdotenv": "^5.2",
     "auth0/auth0-php": "8.x-dev",
     "php-http/guzzle6-adapter": "^2.0",
-    "http-interop/http-factory-guzzle": "^1.0"
+    "http-interop/http-factory-guzzle": "^1.0",
+    "spatie/ray": "^1.26",
+    "league/route": "^5.0",
+    "laminas/laminas-diactoros": "^2.6",
+    "laminas/laminas-httphandlerrunner": "^1.4",
+    "league/plates": "^3.4"
   },
   "repositories": [
     {
@@ -13,5 +18,9 @@
       "url": "https://github.com/auth0/auth0-PHP.git"
     }
   ],
+  "scripts": {
+    "up": "docker compose up --detach --force-recreate",
+    "down": "docker compose down --rmi 'all'"
+  },
   "license": "MIT"
 }
