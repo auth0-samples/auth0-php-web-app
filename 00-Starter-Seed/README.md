@@ -2,22 +2,21 @@
 
 This sample demonstrates how to add authorization to a [PHP](http://php.net/) web app using [Auth0](https://auth0.com).
 
-Check the [PHP Quickstart](https://auth0.com/docs/quickstart/webapp/php) to better understand this sample.
+Check the [PHP Quickstart](https://auth0.com/docs/quickstart/webapp/php) to understand this sample better.
 
 ## Getting Started
 
 Before starting, make sure you have `composer` and `php` installed.
 
-Copy the `.env.example` file to `.env` and populate it with your app's Domain, Client ID, and Client Secret. These can be retrieved from your [Auth0 dashboard](https://manage.auth0.com).
+Copy the `.env.example` file to `.env` and populate it with your app's Domain, Client ID, and Client Secret. Retrieve these from your [Auth0 dashboard](https://manage.auth0.com).
 
 ## Running the App
 
 ```bash
-composer install
-php -S localhost:3000
+composer install && composer start
 ```
 
-The app will be served at [http://localhost:3000/](http://localhost:3000/).
+Your Quickstart will be available at [http://localhost:3000/](http://localhost:3000/).
 
 ## Running the App With Docker
 
