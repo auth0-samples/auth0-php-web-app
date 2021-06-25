@@ -1,0 +1,96 @@
+version: 2.1
+
+commands:
+  prepare:
+    steps:
+      - checkout
+      - run:
+          name: Perform composer self-update
+          command: sudo composer self-update
+      - restore_cache:
+          keys:
+            - composer-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "composer.json" }}
+            - composer-v1-{{ .Environment.CIRCLE_JOB }}
+      - run:
+          name: Enable code coverage
+          command: |
+            sudo pecl install pcov
+            sudo docker-php-ext-enable pcov
+            sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+            sudo docker-php-ext-install posix
+            sudo docker-php-ext-install pcntl
+      - run:
+          name: Install composer dependencies
+          command: composer install -n --prefer-dist
+      - run:
+          name: Update composer dependencies
+          command: composer update --prefer-dist --no-interaction
+      - persist_to_workspace:
+          root: .
+          paths:
+            - composer.*
+            - .snyk
+      - save_cache:
+          key: composer-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "composer.json" }}
+          paths:
+            - vendor
+
+  run-phpinsights:
+    steps:
+      - run:
+          name: Run PHP Insights code quality analysis
+          command: php ./vendor/bin/phpinsights -v --no-interaction
+
+  run-phpstan:
+    steps:
+      - run:
+          name: Run PHPStan static code analysis
+          command: php ./vendor/bin/phpstan analyse --ansi --memory-limit 512M
+
+  run-psalm:
+    steps:
+      - run:
+          name: Run Psalm static code analysis
+          command: php ./vendor/bin/psalm --no-cache
+
+jobs:
+  php_8_0:
+    docker:
+      - image: circleci/php:8.0
+    steps:
+      - prepare
+      - run-phpinsights
+      - run-phpstan
+      - run-psalm
+
+  snyk:
+    docker:
+      - image: snyk/snyk-cli:composer
+    steps:
+      - attach_workspace:
+          at: .
+      - run: snyk test
+      - run:
+          command: |
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]
+            then
+            snyk monitor --org=auth0-sdks
+            fi
+          when: always
+
+workflows:
+  test-php-versions:
+    jobs:
+      - php_8_0
+
+  vulnerability-check:
+    jobs:
+      - php_8_0
+      - snyk:
+          filters:
+            branches:
+              only:
+                - master
+          context: snyk-env
+          requires:
+            - php_8_0
