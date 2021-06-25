@@ -28,7 +28,7 @@ final class ApplicationErrorHandler
     /**
      * Setup onException() as the exception handler with PHP for this request.
      */
-    final public function hook()
+    public function hook(): void
     {
         set_exception_handler([$this, 'onException']);
     }
@@ -38,7 +38,7 @@ final class ApplicationErrorHandler
      *
      * @param Throwable $throwable The throwable to report.
      */
-    final public function onException(
+    public function onException(
         \Throwable $throwable
     ): void {
         $exception = $throwable;
@@ -51,7 +51,7 @@ final class ApplicationErrorHandler
         if ($exception instanceof Auth0Exception) {
             $backtrace = $exception->getTrace();
 
-            if (isset($backtrace[1])) {
+            if (array_key_exists(1, $backtrace)) {
                 $code = $backtrace[1]['line'];
                 $file = $backtrace[1]['file'];
                 $line = $backtrace[1]['line'];

@@ -38,10 +38,12 @@ final class Application
     /**
      * An instance of a QuickstartExample class, specified from the AUTH0_USE_EXAMPLE env.
      */
-    private QuickstartExample $example;
+    private ?QuickstartExample $example = null;
 
     /**
      * Setup our Quickstart application.
+     *
+     * @param array<string,mixed> $env Auth0 configuration imported from .env file.
      */
     public function __construct(
         array $env
@@ -53,12 +55,15 @@ final class Application
         $this->templates = new ApplicationTemplates($this);
         $this->errorHandler = new ApplicationErrorHandler($this);
         $this->router = new ApplicationRouter($this);
+        $this->example = null;
     }
 
     /**
      * Configure the Auth0 SDK using the .env configuration.
+     *
+     * @param array<string,mixed> $env Auth0 configuration imported from .env file.
      */
-    final public function setupAuth0(
+    public function setupAuth0(
         array $env
     ): void {
         // Build our SdkConfiguration.
@@ -67,19 +72,19 @@ final class Application
             clientId: $env['AUTH0_CLIENT_ID'] ?? null,
             clientSecret: $env['AUTH0_CLIENT_SECRET'] ?? null,
             cookieSecret: $env['AUTH0_COOKIE_SECRET'] ?? null,
-            cookieExpires: (isset($env['AUTH0_COOKIE_EXPIRES']) ? (int) $env['AUTH0_COOKIE_EXPIRES'] : 60 * 60 * 24)
+            cookieExpires: (int) ($env['AUTH0_COOKIE_EXPIRES'] ?? 60 * 60 * 24)
         );
 
         // Add 'offline_access' to scopes to ensure we get a renew token.
         $this->configuration->pushScope('offline_access');
 
         // Configure an additional Audience (API identifier) if setup in the .env
-        if (isset($env['AUTH0_AUDIENCE'])) {
+        if (array_key_exists('AUTH0_AUDIENCE', $env)) {
             $this->configuration->pushAudience([$env['AUTH0_AUDIENCE'], $env['AUTH0_CLIENT_ID']]);
         }
 
         // Configure an Organization, if setup in the .env
-        if (isset($env['AUTH0_ORGANIZATION'])) {
+        if (array_key_exists('AUTH0_ORGANIZATION', $env)) {
             $this->configuration->pushOrganization($env['AUTH0_ORGANIZATION']);
         }
 
@@ -90,7 +95,7 @@ final class Application
     /**
      * "Register" a QuickstartExample class.
      */
-    final public function useExample(
+    public function useExample(
         QuickstartExample $class
     ): self {
         $this->example = & $class;
@@ -101,7 +106,8 @@ final class Application
     /**
      * "Run" our application, responding to end-user requests.
      */
-    final public function run(): void {
+    public function run(): void
+    {
         // Intercept exceptions to gracefully report them.
         $this->errorHandler->hook();
 
@@ -112,41 +118,46 @@ final class Application
     /**
      * Return our instance of SdkConfiguration.
      */
-    final public function &getConfiguration(): SdkConfiguration {
+    public function &getConfiguration(): SdkConfiguration
+    {
         return $this->configuration;
     }
 
     /**
      * Return our instance of ApplicationTemplates.
      */
-    final public function &getTemplate(): ApplicationTemplates {
+    public function &getTemplate(): ApplicationTemplates
+    {
         return $this->templates;
     }
 
     /**
      * Return our instance of ApplicationErrorHandler.
      */
-    final public function &getErrorHandler(): ApplicationErrorHandler {
+    public function &getErrorHandler(): ApplicationErrorHandler
+    {
         return $this->errorHandler;
     }
 
     /**
      * Return our instance of ApplicationRouter.
      */
-    final public function &getRouter(): ApplicationRouter {
+    public function &getRouter(): ApplicationRouter
+    {
         return $this->router;
     }
 
     /**
      * Called from the ApplicationRouter when end user loads '/'.
      */
-    final public function onIndexRoute(
+    public function onIndexRoute(
         ApplicationRouter $router
     ): void {
         // Retrieve current session credentials, if end user is signed in.
         $session = $this->sdk->getCredentials();
 
         // If a session is available, check if the token is expired.
+        // @phpstan-ignore-next-line
         if ($session !== null && $session->accessTokenExpired) {
             try {
                 // Token has expired, attempt to renew it.
@@ -170,7 +181,7 @@ final class Application
     /**
      * Called from the ApplicationRouter when end user loads '/callback'.
      */
-    final public function onCallbackRoute(
+    public function onCallbackRoute(
         ApplicationRouter $router
     ): void {
         $this->sdk->exchange(
@@ -188,7 +199,7 @@ final class Application
     /**
      * Called from the ApplicationRouter when end user loads '/login'.
      */
-    final public function onLoginRoute(
+    public function onLoginRoute(
         ApplicationRouter $router
     ): void {
         // Clear the local session.
@@ -204,9 +215,9 @@ final class Application
     /**
      * Called from the ApplicationRouter when end user loads '/logout'.
      */
-    final public function onLogoutRoute(
+    public function onLogoutRoute(
         ApplicationRouter $router
-    ) {
+    ): void {
         // Clear the local session.
         $this->sdk->clear();
 
@@ -220,9 +231,9 @@ final class Application
     /**
      * Called from the ApplicationRouter when end user loads an unknown URI.
      */
-    final public function onError404(
+    public function onError404(
         ApplicationRouter $router
-    ) {
-        http_response_code(404);
+    ): void {
+        $router->status(404);
     }
 }

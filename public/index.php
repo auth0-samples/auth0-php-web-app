@@ -8,7 +8,7 @@ use Auth0\Quickstart\Application;
  * This file bootstraps our application.
  */
 
-define('APP_ROOT', realpath(__DIR__ . DIRECTORY_SEPARATOR . '..'));
+require __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 // Import the files necessary for our Quickstart Application.
 foreach ([
@@ -20,9 +20,9 @@ foreach ([
     'src/ApplicationErrorHandler.php',
 
     // Import our Application class, where our app logic resides, and where we'll make our SDK calls.
-    'src/Application.php'
-    ] as $import) {
-    require_once(join(DIRECTORY_SEPARATOR, [APP_ROOT, $import]));
+    'src/Application.php',
+] as $import) {
+    require_once join(DIRECTORY_SEPARATOR, [APP_ROOT, $import]);
 }
 
 // Load configuration from .env file in project root.
@@ -32,8 +32,8 @@ foreach ([
 $app = new Application($_ENV);
 
 if (isset($_ENV['AUTH0_USE_EXAMPLE'])) {
-    require_once(join(DIRECTORY_SEPARATOR, [APP_ROOT, 'src/Contract/QuickstartExample.php']));
-    require_once(join(DIRECTORY_SEPARATOR, [APP_ROOT, 'src/Example', $_ENV['AUTH0_USE_EXAMPLE'] . '.php']));
+    require_once join(DIRECTORY_SEPARATOR, [APP_ROOT, 'src/Contract/QuickstartExample.php']);
+    require_once join(DIRECTORY_SEPARATOR, [APP_ROOT, 'src/Example', $_ENV['AUTH0_USE_EXAMPLE'] . '.php']);
 
     $className = '\Auth0\Quickstart\Example\\' . $_ENV['AUTH0_USE_EXAMPLE'];
 

@@ -14,9 +14,9 @@ final class ApplicationTemplates
     /**
      * State machine of the template being rendered.
      *
-     * @param array<mixed>
+     * @var array{section: string|null, sections: array<string>, layout: array{name: string, variables: array<mixed>}|null}
      */
-    protected array $state;
+    private array $state;
 
     /**
      * ApplicationTemplates constructor.
@@ -28,7 +28,11 @@ final class ApplicationTemplates
     ) {
         $this->app = & $app;
 
-        $this->reset();
+        $this->state = [
+            'sections' => [],
+            'section' => null,
+            'layout' => null,
+        ];
     }
 
     /**
@@ -37,33 +41,21 @@ final class ApplicationTemplates
      * @param string $template The name of the template to use.
      * @param mixed $variables Any variables the template should have access to use.
      */
-    final public function render(
+    public function render(
         string $template,
-        ... $variables
-    ) {
-        $this->reset();
-
+        ...$variables
+    ): void {
         echo $this->renderTemplate($template, $variables);
         exit;
     }
 
     /**
-     * Reset the state of the template engine, to prepare for a fresh render.
-     */
-    final public function reset()
-    {
-        $this->state['sections'] = [];
-        $this->state['section'] = null;
-        $this->state['layout'] = null;
-    }
-
-    /**
      * Render a template, and return the content as a string.
      *
-     * @param string $template The name of the template to use.
-     * @param array $variables Any variables the template should have access to use.
+     * @param string       $template  The name of the template to use.
+     * @param array<mixed> $variables Any variables the template should have access to use.
      */
-    final protected function renderTemplate(
+    private function renderTemplate(
         string $template,
         array $variables
     ): string {
@@ -71,16 +63,21 @@ final class ApplicationTemplates
         $level = 0;
 
         // Resolve the requested template to it's file path:
-        $template = join(DIRECTORY_SEPARATOR, [APP_ROOT, 'templates', $template . '.php']);
+        $templatePath = join(DIRECTORY_SEPARATOR, [APP_ROOT, 'templates', $template . '.php']);
 
         // Extract $variables into current scope, for use in template.
         extract($variables);
+
+        if (file_exists($templatePath) === false) {
+            // @phpstan-ignore-next-line
+            throw new \Exception("Template file not found: ${template}");
+        }
 
         try {
             $level = ob_get_level();
             ob_start();
 
-            include $template;
+            include $templatePath;
 
             $content = ob_get_clean();
 
@@ -97,7 +94,11 @@ final class ApplicationTemplates
                 );
             }
 
-            return trim($content);
+            if ($content !== false) {
+                return trim($content);
+            }
+
+            return '';
         } catch (\Throwable $e) {
             while (ob_get_level() > $level) {
                 ob_end_clean();
@@ -112,7 +113,7 @@ final class ApplicationTemplates
      *
      * @param string $sectionName Name of the section to render into the template.
      */
-    final protected function section(
+    private function section(
         string $sectionName
     ): string {
         return $this->state['sections'][$sectionName] ?? '';
@@ -123,9 +124,9 @@ final class ApplicationTemplates
      *
      * @param string $sectionName Name of the section to begin capturing.
      */
-    final protected function start(
+    private function start(
         string $sectionName
-    ) {
+    ): void {
         if ($this->state['section'] !== null) {
             throw new \LogicException('Nested sections are not supported.');
         }
@@ -138,12 +139,13 @@ final class ApplicationTemplates
     /**
      * Stop capturing a previously started template block, and store the section content for use.
      */
-    final protected function stop() {
+    private function stop(): void
+    {
         if ($this->state['section'] === null) {
             throw new \LogicException('You must start a section before stopping it.');
         }
 
-        if (isset($this->state['sections'][$this->state['section']])) {
+        if (array_key_exists($this->state['section'], $this->state['sections'])) {
             $this->state['sections'][$this->state['section']] = '';
         }
 
@@ -157,13 +159,13 @@ final class ApplicationTemplates
      * @param string $name The name of the layout template to use.
      * @param mixed $variables Any additional variables the layout template should have access to use.
      */
-    final protected function layout(
+    private function layout(
         string $name,
-        ... $variables
-    ) {
+        ...$variables
+    ): void {
         $this->state['layout'] = [
             'name' => $name,
-            'variables' => $variables
+            'variables' => $variables,
         ];
     }
 }

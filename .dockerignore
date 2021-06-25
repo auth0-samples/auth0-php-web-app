@@ -1,6 +1,3 @@
 vendor/
 .composer.lock
-.gitignore
 .env.example
-exec.sh
-exec.ps1

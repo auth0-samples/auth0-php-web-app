@@ -16,6 +16,8 @@ use Hyperf\Event\ListenerProvider;
  */
 final class HttpEventListeners implements QuickstartExample
 {
+    private const ECHO_HTTP_RESPONSE = false;
+
     /**
      * An instance of our Quickstart Application.
      */
@@ -33,7 +35,8 @@ final class HttpEventListeners implements QuickstartExample
         $this->listener = new ListenerProvider();
     }
 
-    public function setup(): self {
+    public function setup(): self
+    {
         // Register our PSR-14 ListenerProvider.
         $this->app->getConfiguration()->setEventListenerProvider($this->listener);
 
@@ -46,7 +49,7 @@ final class HttpEventListeners implements QuickstartExample
 
     public function onHttpRequestBuilt(
         object $event
-    ) {
+    ): void {
         // Retrieve the built PSR-7 RequestInterface message.
         $request = $event->get();
 
@@ -59,7 +62,7 @@ final class HttpEventListeners implements QuickstartExample
 
     public function onHttpResponseReceived(
         object $event
-    ) {
+    ): void {
         // Retrieve the built PSR-7 ResponseInterface message.
         $response = $event->get();
 
@@ -71,6 +74,14 @@ final class HttpEventListeners implements QuickstartExample
         if ($requestUri->getHost() === 'example.us.auth0.com' &&
             $requestUri->getPath() === '/somewhere') {
             $response = $response->withBody(Utils::streamFor('new content for the response'));
+        }
+
+        // Echo the respond object and terminate the request.
+        // @phpstan-ignore-next-line
+        if (self::ECHO_HTTP_RESPONSE === true) {
+            echo '<pre>';
+            print_r($response->getBody()->__toString());
+            exit;
         }
 
         // Update the PSR-7 ResponseInterface object before the SDK uses it.

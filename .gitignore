@@ -1,3 +1,4 @@
-
-00-Starter-Seed/composer.lock
+vendor
+.env
+composer.lock
 .DS_Store
