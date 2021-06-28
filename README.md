@@ -24,10 +24,13 @@ Copy .env.example into a new file in the same folder called .env, and replace th
 ```sh
 # Your Auth0 application's Client ID
 AUTH0_CLIENT_ID='YOUR_AUTH0_CLIENT_ID'
+
 # The url of your Auth0 tenant domain
 AUTH0_DOMAIN='https://YOUR_AUTH0_DOMAIN.auth0.com'
+
 # Your Auth0 application's Client Secret
 AUTH0_CLIENT_SECRET='YOUR_AUTH0_CLIENT_SECRET'
+
 # A long secret value used to encrypt the session cookie
 AUTH0_COOKIE_SECRET='LONG_RANDOM_VALUE'
 ```
