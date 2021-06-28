@@ -41,6 +41,13 @@ final class Application
     private ?QuickstartExample $example = null;
 
     /**
+     * An array of hooks with callback functions for examples to override default behavior.
+     *
+     * @var array<string, callable>
+     */
+    private array $exampleHooks = [];
+
+    /**
      * Setup our Quickstart application.
      *
      * @param array<string,mixed> $env Auth0 configuration imported from .env file.
@@ -104,6 +111,17 @@ final class Application
     }
 
     /**
+     * "Register" a QuickstartExample class.
+     */
+    public function hook(
+        string $eventName,
+        callable $callback
+    ): self {
+        $this->exampleHooks[$eventName] = $callback;
+        return $this;
+    }
+
+    /**
      * "Run" our application, responding to end-user requests.
      */
     public function run(): void
@@ -113,6 +131,14 @@ final class Application
 
         // Handle incoming requests through the router.
         $this->router->run();
+    }
+
+    /**
+     * Return our instance of Auth0.
+     */
+    public function &getSdk(): Auth0
+    {
+        return $this->sdk;
     }
 
     /**
@@ -173,8 +199,8 @@ final class Application
         $this->templates->render(
             template: 'logged-' . ($session === null ? 'out' : 'in'),
             session: $session,
-            cookies: $_COOKIE,
-            router: $router
+            router: $router,
+            cookies: $_COOKIE
         );
     }
 
@@ -184,16 +210,21 @@ final class Application
     public function onCallbackRoute(
         ApplicationRouter $router
     ): void {
-        $this->sdk->exchange(
-            // Inform Auth0 we want to redirect to our /callback route, so we can perform the code exchange and setup the user session there.
-            redirectUri: $router->getUri('/', '')
-        );
+        // If you have an example class enabled ("AUTH0_EXAMPLE" in your .env file), check if a hook is setup to override default behavior:
+        $event = $this->exampleHooks['onCallbackRoute'] ?? null;
 
-        // Redirect to your application's index route.
-        $router->redirect($router->getUri(
-            path: '/',
-            query: ''
-        ));
+        if ($event === null || $event($router) === null) {
+            $this->sdk->exchange(
+                // Inform Auth0 we want to redirect to our /callback route, so we can perform the code exchange and setup the user session there.
+                redirectUri: $router->getUri('/callback', '')
+            );
+
+            // Redirect to your application's index route.
+            $router->redirect($router->getUri(
+                path: '/',
+                query: ''
+            ));
+        }
     }
 
     /**
@@ -205,11 +236,16 @@ final class Application
         // Clear the local session.
         $this->sdk->clear();
 
-        // Redirect to Auth0's Universal Login page.
-        $router->redirect($this->sdk->authentication()->getLoginLink(
-            // Inform Auth0 we want to redirect to our /callback route, so we can perform the code exchange and setup the user session there.
-            redirectUri: $router->getUri('/callback', '')
-        ));
+        // If you have an example class enabled ("AUTH0_EXAMPLE" in your .env file), check if a hook is setup to override default behavior:
+        $event = $this->exampleHooks['onLoginRoute'] ?? null;
+
+        if ($event === null || $event($router) === null) {
+            // Redirect to Auth0's Universal Login page.
+            $router->redirect($this->sdk->authentication()->getLoginLink(
+                // Inform Auth0 we want to redirect to our /callback route, so we can perform the code exchange and setup the user session there.
+                redirectUri: $router->getUri('/callback', '')
+            ));
+        }
     }
 
     /**
@@ -229,11 +265,11 @@ final class Application
     }
 
     /**
-     * Called from the ApplicationRouter when end user loads an unknown URI.
+     * Called from the ApplicationRouter when end user loads an unknown route.
      */
     public function onError404(
         ApplicationRouter $router
     ): void {
-        $router->status(404);
+        $router->setHttpStatus(404);
     }
 }

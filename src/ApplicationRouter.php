@@ -24,13 +24,25 @@ final class ApplicationRouter
 
     /**
      * Process the current request and route it to the class handler.
+     *
+     * @param string $uri The new uri to redirect the end user to.
+     */
+    public function redirect(
+        string $uri
+    ): void {
+        header('Location: ' . $uri, true, 303);
+        exit;
+    }
+
+    /**
+     * Process the current request and route it to the class handler.
      */
     public function run(): void
     {
         $requestUri = parse_url($this->getUri(), PHP_URL_PATH);
 
         // Issue headers to disable browser caching.
-        $this->disallowCaching();
+        $this->setCachingHeaders();
 
         $routed = false;
 
@@ -79,7 +91,7 @@ final class ApplicationRouter
         $httpRequest = (string) $_SERVER['REQUEST_URI'];
         $httpUri = $httpScheme . '://' . $httpHost . ($httpPort !== 80 ? ':' . $httpPort : '') . $httpRequest;
 
-        // If we aren't making changes the uri, simply return it.
+        // If we aren't making changes, simply return the uri.
         if ($path === null && $query === null) {
             return $httpUri;
         }
@@ -114,19 +126,29 @@ final class ApplicationRouter
             $parsedUri['query'] = '';
         }
 
+        if ($parsedUri['query'] !== '') {
+            $parsedUri['query'] = '?' . $parsedUri['query'];
+        }
+
         // Reconstruct the manipulated uri and return it.
         return $parsedUri['scheme'] . '://' . $parsedUri['host'] . ($parsedUri['port'] !== 80 ? ':' . $parsedUri['port'] : '') . $parsedUri['path'] . $parsedUri['query'];
     }
 
     /**
-     * Process the current request and route it to the class handler.
-     *
-     * @param string $uri The new uri to redirect the end user to.
+     * Return the request method (GET, POST, etc.)
      */
-    public function redirect(
-        string $uri
-    ): void {
-        header('Location: ' . $uri, true, 303);
+    public function getMethod(): string
+    {
+        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    }
+
+    /**
+     * Issue HTTP headers to disable browser caching.
+     */
+    public function setCachingHeaders(): void
+    {
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
     }
 
     /**
@@ -134,18 +156,9 @@ final class ApplicationRouter
      *
      * @param int $status The HTTP status code to send.
      */
-    public function status(
+    public function setHttpStatus(
         int $status
     ): void {
         http_response_code($status);
-    }
-
-    /**
-     * Issue HTTP headers to disable browser caching.
-     */
-    private function disallowCaching(): void
-    {
-        header('Cache-Control: no-cache, must-revalidate');
-        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
     }
 }

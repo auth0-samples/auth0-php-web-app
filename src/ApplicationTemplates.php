@@ -45,6 +45,16 @@ final class ApplicationTemplates
         string $template,
         ...$variables
     ): void {
+        $this->state = [
+            'sections' => [],
+            'section' => null,
+            'layout' => null,
+        ];
+
+        while (ob_get_level() >= 1) {
+            ob_end_clean();
+        }
+
         echo $this->renderTemplate($template, $variables);
         exit;
     }
