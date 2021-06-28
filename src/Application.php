@@ -86,12 +86,12 @@ final class Application
         $this->configuration->pushScope('offline_access');
 
         // Configure an additional Audience (API identifier) if setup in the .env
-        if (array_key_exists('AUTH0_AUDIENCE', $env)) {
+        if (array_key_exists('AUTH0_AUDIENCE', $env) && strlen($env['AUTH0_AUDIENCE']) !== 0) {
             $this->configuration->pushAudience([$env['AUTH0_AUDIENCE'], $env['AUTH0_CLIENT_ID']]);
         }
 
         // Configure an Organization, if setup in the .env
-        if (array_key_exists('AUTH0_ORGANIZATION', $env)) {
+        if (array_key_exists('AUTH0_ORGANIZATION', $env) && strlen($env['AUTH0_ORGANIZATION']) !== 0) {
             $this->configuration->pushOrganization($env['AUTH0_ORGANIZATION']);
         }
 
@@ -241,10 +241,7 @@ final class Application
 
         if ($event === null || $event($router) === null) {
             // Redirect to Auth0's Universal Login page.
-            $router->redirect($this->sdk->authentication()->getLoginLink(
-                // Inform Auth0 we want to redirect to our /callback route, so we can perform the code exchange and setup the user session there.
-                redirectUri: $router->getUri('/callback', '')
-            ));
+            $router->redirect($this->sdk->login($router->getUri('/callback', '')));
         }
     }
 
@@ -254,14 +251,8 @@ final class Application
     public function onLogoutRoute(
         ApplicationRouter $router
     ): void {
-        // Clear the local session.
-        $this->sdk->clear();
-
         // Redirect to Auth0's Universal Login page.
-        $router->redirect($this->sdk->authentication()->getLogoutLink(
-            // Inform Auth0 we want to return to our / route after logout.
-            returnUri: $router->getUri('/', '')
-        ));
+        $router->redirect($this->sdk->logout($router->getUri('/', '')));
     }
 
     /**

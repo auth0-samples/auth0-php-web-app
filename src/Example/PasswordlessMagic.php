@@ -143,10 +143,7 @@ final class PasswordlessMagic implements QuickstartExample
 
         // Authentication was successful. For some applications, this access token may be enough for your needs.
         // For the purposes for this quickstart, we'll redirect back to Auth0 using 'silent authentication' (prompt=none) to get an Id Token.
-        $router->redirect($this->app->getSdk()->authentication()->getLoginLink(
-            $router->getUri(path: '/callback', query: 'passwordless=true'),
-            ['prompt' => 'none']
-        ));
+        $router->redirect($this->app->getSdk()->login($router->getUri(path: '/callback', query: 'passwordless=complete'), ['prompt' => 'none']));
 
         return true;
     }

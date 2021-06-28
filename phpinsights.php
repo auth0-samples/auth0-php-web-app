@@ -18,6 +18,7 @@ return [
     ],
 
     'remove' => [
+        \NunoMaduro\PhpInsights\Domain\Insights\CyclomaticComplexityIsHigh::class,
         \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenGlobals::class,
         \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenNormalClasses::class,
         \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenTraits::class,
