@@ -1,0 +1,38 @@
+{
+  "name": "auth0-samples/auth0-php-web-app",
+  "description": "Auth0 Integration Samples for PHP Web Applications.",
+  "require": {
+    "php": "^8.0",
+    "auth0/auth0-php": "8.x-dev",
+    "guzzlehttp/guzzle": "^7.3",
+    "guzzlehttp/psr7": "^1.8",
+    "http-interop/http-factory-guzzle": "^1.0",
+    "hyperf/event": "^2.1",
+    "php-http/httplug": "^2.2",
+    "vlucas/phpdotenv": "^5.3"
+  },
+  "require-dev": {
+    "ergebnis/phpstan-rules": "^0.15",
+    "nunomaduro/phpinsights": "^2.0",
+    "phpstan/phpstan": "^0.12",
+    "phpstan/phpstan-strict-rules": "^0.12",
+    "thecodingmachine/phpstan-strict-rules": "^0.12",
+    "vimeo/psalm": "^4.7"
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/auth0/auth0-PHP.git"
+    }
+  ],
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "scripts": {
+    "app": "composer install --no-dev && php -S 127.0.0.1:3000 public/index.php",
+    "docker": "docker compose run install && docker compose run --rm --service-ports quickstart",
+    "tests": "docker compose run --rm tests"
+  },
+  "license": "MIT"
+}
