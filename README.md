@@ -35,9 +35,9 @@ AUTH0_CLIENT_SECRET='YOUR_AUTH0_CLIENT_SECRET'
 AUTH0_COOKIE_SECRET='LONG_RANDOM_VALUE'
 ```
 
-**Note**: Make sure you replace `AUTH0_SECRET` with your own secret (you can generate a suitable string using `openssl rand -hex 32` on the command line).
+**Note**: Make sure you replace `LONG_RANDOM_VALUE` with your secret (you can generate a suitable string using `openssl rand -hex 32` on the command line).
 
-**Note**: Ensure you are consistent in your use of 'localhost' and/or '127.0.0.1' when testing. These must match your Auth0 Application settings or you will encounter errors. They must also match for session cookies to work properly.
+**Note**: Ensure you are consistent in your use of 'localhost' and/or '127.0.0.1' when testing. These must match your Auth0 Application settings or you will encounter errors. They must also match for session cookies to work correctly.
 
 ## Run the sample
 
@@ -53,7 +53,7 @@ Your Quickstart should now be accessible at [http://127.0.0.1:3000/](http://127.
 
 ## Running with Docker
 
-Before starting, make sure you have [Docker](https://docs.docker.com/get-docker/) installed.
+Before continuing, make sure you have [Docker](https://docs.docker.com/get-docker/) installed. This is required.
 
 Next, use the following command to install the necessary dependencies and start the sample within a Docker container:
 
