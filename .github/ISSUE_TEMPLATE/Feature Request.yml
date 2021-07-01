@@ -2,8 +2,6 @@ name: Quickstart Feature Request
 description: File a feature request to help us take this sample application to the next level.
 title: "[Feature Request]: "
 labels: [feature request]
-assignees:
-  - evansims
 body:
   - type: markdown
     attributes:
