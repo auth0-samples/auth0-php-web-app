@@ -39,7 +39,8 @@ body:
   - type: dropdown
     id: composer
     attributes:
-      label: What version of Composer are you running? `composer -v`
+      label: Composer Version
+      description: What version of Composer are you running? `composer -v`
       options:
         - 2.x
         - 1.x
