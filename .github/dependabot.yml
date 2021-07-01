@@ -1,11 +1,6 @@
 version: 2
 updates:
-- package-ecosystem: composer
-  directory: "/00-Starter-Seed"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: vlucas/phpdotenv
-    versions:
-    - ">= 4.a, < 5"
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: daily

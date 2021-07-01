@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  quickstart:
+    image: php:8.0-cli-alpine
+    volumes:
+      - ./:/app
+    working_dir: /app
+    entrypoint: ["php", "-S", "0.0.0.0:3000", "public/index.php"]
+    ports:
+      - "3000:3000"
+    env_file: .env
+
+  tests:
+    image: composer:2.1
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: >
+      sh -c "rm -f ./composer.lock &&
+             composer validate &&
+             composer install &&
+             php ./vendor/bin/phpinsights -v --no-interaction &&
+             php ./vendor/bin/phpstan analyse --ansi --memory-limit 512M &&
+             php ./vendor/bin/psalm --no-cache"
+
+  install:
+    image: composer:2.1
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: >
+      sh -c "rm ./composer.lock &&
+             composer install --no-dev"
