@@ -2,7 +2,7 @@
 
 This sample demonstrates how to add authorization to a [PHP](http://php.net/) web app using [Auth0](https://auth0.com).
 
-Check the [PHP Quickstart](https://auth0.com/docs/quickstart/webapp/php) to understand this sample better.
+Check the [PHP Quickstart](https://auth0.com/docs/quickstart/webapp/php-beta) to understand this sample better.
 
 ## Configuration
 
