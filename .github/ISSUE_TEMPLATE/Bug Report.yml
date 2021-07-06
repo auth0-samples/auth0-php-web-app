@@ -1,5 +1,6 @@
 name: Quickstart Bug Report
 description: File a report to help us improve this sample application.
+title: "[Bug]: "
 labels: [bug]
 body:
   - type: markdown
