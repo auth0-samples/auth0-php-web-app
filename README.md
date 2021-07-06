@@ -1,4 +1,4 @@
-# Auth0 + PHP Web App Sample
+# [8.0 BETA] Auth0 PHP Web App Sample
 
 This sample demonstrates how to add authorization to a [PHP](http://php.net/) web app using [Auth0](https://auth0.com).
 
