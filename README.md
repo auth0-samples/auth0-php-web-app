@@ -1,6 +1,7 @@
 # Auth0 + PHP Web App Sample
 
-[![CircleCI](https://circleci.com/gh/auth0-samples/auth0-php-web-app.svg?style=svg)](https://circleci.com/gh/auth0-samples/auth0-php-web-app)
+> This branch contains a sample application for the stable (7.x) branch of the PHP SDK.
+> For the new 8.x Beta quickstart, please [visit this branch](https://github.com/auth0-samples/auth0-php-web-app/tree/8.x).
 
 This sample demonstrates how to add authorization to a [PHP](http://php.net/) web app using [Auth0](https://auth0.com).
 
