@@ -3,7 +3,7 @@
   "description": "Auth0 Integration Samples for PHP Web Applications.",
   "require": {
     "php": "^8.0",
-    "auth0/auth0-php": "8.x-dev",
+    "auth0/auth0-php": "8.0.0-BETA1",
     "guzzlehttp/guzzle": "^7.3",
     "guzzlehttp/psr7": "^1.8",
     "http-interop/http-factory-guzzle": "^1.0",
@@ -19,12 +19,6 @@
     "thecodingmachine/phpstan-strict-rules": "^0.12",
     "vimeo/psalm": "^4.7"
   },
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://github.com/auth0/auth0-PHP.git"
-    }
-  ],
   "config": {
     "optimize-autoloader": true,
     "sort-packages": true
