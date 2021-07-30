@@ -23,10 +23,26 @@
     "optimize-autoloader": true,
     "sort-packages": true
   },
+  "minimum-stability": "beta",
+  "prefer-stable": true,
   "scripts": {
-    "app": "composer install --no-dev && php -S 127.0.0.1:3000 public/index.php",
-    "docker": "docker compose run install && docker compose run --rm --service-ports quickstart",
-    "tests": "docker compose run --rm tests"
+    "app": [
+      "@pre-run-app",
+      "composer install --no-dev",
+      "php -S 127.0.0.1:3000 public/index.php"
+    ],
+    "docker": [
+      "@pre-run-app",
+      "docker-compose run install",
+      "docker-compose run --rm --service-ports quickstart"
+    ],
+    "tests": [
+      "@pre-run-app",
+      "docker-compose run --rm tests"
+    ],
+    "pre-run-app": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ]
   },
   "license": "MIT"
 }
