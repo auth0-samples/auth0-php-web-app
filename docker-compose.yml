@@ -30,5 +30,5 @@ services:
       - ./:/app
     working_dir: /app
     command: >
-      sh -c "rm ./composer.lock &&
+      sh -c "rm -f ./composer.lock &&
              composer install --no-dev"
