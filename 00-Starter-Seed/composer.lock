@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "auth0/auth0-php",
-            "version": "7.9.1",
+            "version": "7.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/auth0/auth0-PHP.git",
-                "reference": "44caed3aa72f9c9b60d9b7de80dd1909e7e62281"
+                "reference": "95cdd4f09122f14d0b0246fe8c51287ece63f98a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/auth0/auth0-PHP/zipball/44caed3aa72f9c9b60d9b7de80dd1909e7e62281",
-                "reference": "44caed3aa72f9c9b60d9b7de80dd1909e7e62281",
+                "url": "https://api.github.com/repos/auth0/auth0-PHP/zipball/95cdd4f09122f14d0b0246fe8c51287ece63f98a",
+                "reference": "95cdd4f09122f14d0b0246fe8c51287ece63f98a",
                 "shasum": ""
             },
             "require": {
@@ -59,7 +59,7 @@
             ],
             "description": "Auth0 PHP SDK.",
             "homepage": "https://github.com/auth0/auth0-PHP",
-            "time": "2021-07-06T18:29:52+00:00"
+            "time": "2021-08-04T13:08:48+00:00"
         },
         {
             "name": "auth0/php-jwt",
