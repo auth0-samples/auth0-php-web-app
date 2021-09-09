@@ -3,7 +3,7 @@
   "description": "Auth0 Integration Samples for PHP Web Applications.",
   "require": {
     "php": "^8.0",
-    "auth0/auth0-php": "8.0.0-BETA1",
+    "auth0/auth0-php": "8.0.0-BETA3",
     "guzzlehttp/guzzle": "^7.3",
     "guzzlehttp/psr7": "^1.8",
     "http-interop/http-factory-guzzle": "^1.0",
@@ -27,16 +27,19 @@
   "prefer-stable": true,
   "scripts": {
     "app": [
+      "Composer\\Config::disableProcessTimeout",
       "@pre-run-app",
       "composer install --no-dev",
       "php -S 127.0.0.1:3000 public/index.php"
     ],
     "docker": [
+      "Composer\\Config::disableProcessTimeout",
       "@pre-run-app",
       "docker-compose run install",
       "docker-compose run --rm --service-ports quickstart"
     ],
     "tests": [
+      "Composer\\Config::disableProcessTimeout",
       "@pre-run-app",
       "docker-compose run --rm tests"
     ],
