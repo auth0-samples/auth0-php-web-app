@@ -14,8 +14,6 @@ use Auth0\SDK\Utility\HttpResponse;
  */
 final class PasswordlessMagic implements QuickstartExample
 {
-    private const STATE_COOKIE_NAME = 'qs_passwordless_state';
-
     /**
      * An instance of our Quickstart Application.
      */
