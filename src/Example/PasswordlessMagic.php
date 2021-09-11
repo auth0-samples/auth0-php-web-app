@@ -59,7 +59,7 @@ final class PasswordlessMagic implements QuickstartExample
                 type: 'link',
                 params: [
                     'redirect_uri' => $router->getUri('/callback', ''),
-                    'scope' => $this->app->getConfiguration()->buildScopeString(),
+                    'scope' => $this->app->getConfiguration()->formatScope(),
                 ]
             );
 
