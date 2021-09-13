@@ -76,6 +76,7 @@ final class Application
         // Build our SdkConfiguration.
         $this->configuration = new SdkConfiguration(
             domain: $env['AUTH0_DOMAIN'] ?? null,
+            customDomain: $env['AUTH0_CUSTOM_DOMAIN'] ?? null,
             clientId: $env['AUTH0_CLIENT_ID'] ?? null,
             clientSecret: $env['AUTH0_CLIENT_SECRET'] ?? null,
             cookieSecret: $env['AUTH0_COOKIE_SECRET'] ?? null,
@@ -195,13 +196,18 @@ final class Application
             }
         }
 
-        // Send response to browser.
-        $this->templates->render(
-            template: 'logged-' . ($session === null ? 'out' : 'in'),
-            session: $session,
-            router: $router,
-            cookies: $_COOKIE
-        );
+        // If you have an example class enabled ("AUTH0_EXAMPLE" in your .env file), check if a hook is setup to override default behavior:
+        $event = $this->exampleHooks['onIndexRoute'] ?? null;
+
+        if ($event === null || $event($router, $session) === null) {
+            // Send response to browser.
+            $this->templates->render(
+                template: 'logged-' . ($session === null ? 'out' : 'in'),
+                session: $session,
+                router: $router,
+                cookies: $_COOKIE
+            );
+        }
     }
 
     /**
