@@ -3,7 +3,7 @@
   "description": "Auth0 Integration Samples for PHP Web Applications.",
   "require": {
     "php": "^8.0",
-    "auth0/auth0-php": "8.0.0-BETA3",
+    "auth0/auth0-php": "8.0.0",
     "guzzlehttp/guzzle": "^7.3",
     "guzzlehttp/psr7": "^1.8",
     "http-interop/http-factory-guzzle": "^1.0",
@@ -23,8 +23,6 @@
     "optimize-autoloader": true,
     "sort-packages": true
   },
-  "minimum-stability": "beta",
-  "prefer-stable": true,
   "scripts": {
     "app": [
       "Composer\\Config::disableProcessTimeout",
