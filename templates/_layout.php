@@ -77,6 +77,12 @@
             <?php echo $this->section('body')?>
         </div>
     </main>
+
+    <footer class="mt-4 md:mt-16">
+        <div class="px-4 text-sm sm:px-6 sm:text-center md:max-w-7xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center">
+            <p>This sample application is importing Auth0-PHP v<?php echo $sdkVersion; ?>.</p>
+        </div>
+    </footer>
 </body>
 
 </html>

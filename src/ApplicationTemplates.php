@@ -77,6 +77,7 @@ final class ApplicationTemplates
 
         // Extract $variables into current scope, for use in template.
         extract($variables);
+        $sdkVersion = \Auth0\SDK\Auth0::VERSION;
 
         if (file_exists($templatePath) === false) {
             // @phpstan-ignore-next-line
