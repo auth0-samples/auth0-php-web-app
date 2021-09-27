@@ -1,0 +1,21 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/ergebnis/phpstan-rules/rules.neon
+    - vendor/thecodingmachine/phpstan-strict-rules/phpstan-strict-rules.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+
+    ignoreErrors:
+        - '#Call to an undefined method object::(.*)\(\)#'
+        - '#Method (.*) has parameter (.*) with a nullable type declaration.#'
+        - '#Method (.*) has parameter (.*) with null as default value.#'
+        - '#you should not use the \$_COOKIE superglobal.#'
+
+    bootstrapFiles:
+        - %rootDir%/../../squizlabs/php_codesniffer/autoload.php
+        - public/bootstrap.php
+
+    reportUnmatchedIgnoredErrors: false
