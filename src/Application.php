@@ -74,27 +74,19 @@ final class Application
         array $env
     ): void {
         // Build our SdkConfiguration.
-        $this->configuration = new SdkConfiguration(
-            domain: $env['AUTH0_DOMAIN'] ?? null,
-            customDomain: $env['AUTH0_CUSTOM_DOMAIN'] ?? null,
-            clientId: $env['AUTH0_CLIENT_ID'] ?? null,
-            clientSecret: $env['AUTH0_CLIENT_SECRET'] ?? null,
-            cookieSecret: $env['AUTH0_COOKIE_SECRET'] ?? null,
-            cookieExpires: (int) ($env['AUTH0_COOKIE_EXPIRES'] ?? 60 * 60 * 24)
-        );
+        $this->configuration = new SdkConfiguration([
+            'domain' => $env['AUTH0_DOMAIN'] ?? null,
+            'customDomain' => $env['AUTH0_CUSTOM_DOMAIN'] ?? null,
+            'clientId' => $env['AUTH0_CLIENT_ID'] ?? null,
+            'clientSecret' => $env['AUTH0_CLIENT_SECRET'] ?? null,
+            'cookieSecret' => $env['AUTH0_COOKIE_SECRET'] ?? null,
+            'cookieExpires' => (int) ($env['AUTH0_COOKIE_EXPIRES'] ?? 60 * 60 * 24),
+            'audience' => ($env['AUTH0_AUDIENCE'] ?? null) !== null ? [trim($env['AUTH0_AUDIENCE'])] : null,
+            'organization' => ($env['AUTH0_ORGANIZATION'] ?? null) !== null ? [trim($env['AUTH0_ORGANIZATION'])] : null,
+        ]);
 
         // Add 'offline_access' to scopes to ensure we get a renew token.
         $this->configuration->pushScope('offline_access');
-
-        // Configure an additional Audience (API identifier) if setup in the .env
-        if (array_key_exists('AUTH0_AUDIENCE', $env) && strlen($env['AUTH0_AUDIENCE']) !== 0) {
-            $this->configuration->pushAudience([$env['AUTH0_AUDIENCE'], $env['AUTH0_CLIENT_ID']]);
-        }
-
-        // Configure an Organization, if setup in the .env
-        if (array_key_exists('AUTH0_ORGANIZATION', $env) && strlen($env['AUTH0_ORGANIZATION']) !== 0) {
-            $this->configuration->pushOrganization($env['AUTH0_ORGANIZATION']);
-        }
 
         // Setup the Auth0 SDK.
         $this->sdk = new Auth0($this->configuration);
@@ -201,12 +193,11 @@ final class Application
 
         if ($event === null || $event($router, $session) === null) {
             // Send response to browser.
-            $this->templates->render(
-                template: 'logged-' . ($session === null ? 'out' : 'in'),
-                session: $session,
-                router: $router,
-                cookies: $_COOKIE
-            );
+            $this->templates->render('logged-' . ($session === null ? 'out' : 'in'), [
+                'session' => $session,
+                'router' => $router,
+                'cookies' => $_COOKIE,
+            ]);
         }
     }
 
@@ -226,10 +217,7 @@ final class Application
             );
 
             // Redirect to your application's index route.
-            $router->redirect($router->getUri(
-                path: '/',
-                query: ''
-            ));
+            $router->redirect($router->getUri('/', ''));
         }
     }
 

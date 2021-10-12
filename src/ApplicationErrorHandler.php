@@ -58,15 +58,14 @@ final class ApplicationErrorHandler
             }
         }
 
-        $this->app->getTemplate()->render(
-            template: 'error',
-            code: $code,
-            error: $error,
-            file: $file,
-            line: $line,
-            cookies: $_COOKIE,
-            router: $this->app->getRouter()
-        );
+        $this->app->getTemplate()->render('error', [
+            'code' => $code,
+            'error' => $error,
+            'file' => $file,
+            'line' => $line,
+            'cookies' => $_COOKIE,
+            'router' => $this->app->getRouter(),
+        ]);
 
         exit;
     }

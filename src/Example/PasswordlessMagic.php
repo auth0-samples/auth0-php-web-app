@@ -44,22 +44,15 @@ final class PasswordlessMagic implements QuickstartExample
             $email = filter_var($_POST['passwordless_email'], FILTER_SANITIZE_EMAIL);
 
             if ($email === false) {
-                $router->redirect($router->getUri(
-                    path: '/',
-                    query: '',
-                ));
+                $router->redirect($router->getUri( '/', ''));
 
                 return true;
             }
 
-            $response = $this->app->getSdk()->authentication()->emailPasswordlessStart(
-                email: $email,
-                type: 'link',
-                params: [
-                    'redirect_uri' => $router->getUri('/callback', ''),
-                    'scope' => $this->app->getConfiguration()->formatScope(),
-                ]
-            );
+            $response = $this->app->getSdk()->authentication()->emailPasswordlessStart($email, 'link', [
+                'redirect_uri' => $router->getUri('/callback', ''),
+                'scope' => $this->app->getConfiguration()->formatScope(),
+            ]);
 
             if (! HttpResponse::wasSuccessful($response)) {
                 $response = HttpResponse::decodeContent($response);
@@ -80,12 +73,11 @@ final class PasswordlessMagic implements QuickstartExample
         }
 
         // Display login page, prompting for email address:
-        $this->app->getTemplate()->render(
-            template: 'passwordless-magic-login',
-            startedPasswordless: $startedPasswordless,
-            router: $router,
-            cookies: $_COOKIE
-        );
+        $this->app->getTemplate()->render('passwordless-magic-login', [
+            'startedPasswordless' => $startedPasswordless,
+            'router' => $router,
+            'cookies' => $_COOKIE
+        ]);
 
         return true;
     }
@@ -100,20 +92,12 @@ final class PasswordlessMagic implements QuickstartExample
         $hash = $_GET['hash'] ?? null;
 
         if ($passwordlessState === 'complete') {
-            $this->app->getSdk()->exchange(
-                redirectUri: $router->getUri('/', '')
-            );
-
-            $router->redirect($router->getUri(
-                path: '/',
-                query: ''
-            ));
+            $this->app->getSdk()->exchange($router->getUri('/', ''));
+            $router->redirect($router->getUri('/', ''));
         }
 
         if ($hash === null) {
-            $this->app->getTemplate()->render(
-                template: 'passwordless-magic-callback'
-            );
+            $this->app->getTemplate()->render('passwordless-magic-callback');
 
             return true;
         }
@@ -131,17 +115,14 @@ final class PasswordlessMagic implements QuickstartExample
         $expiresIn = $params['expires_in'] ?? null;
 
         if ($accessToken === null || $scope === null || $expiresIn === null) {
-            $router->redirect($router->getUri(
-                path: '/',
-                query: '',
-            ));
+            $router->redirect($router->getUri('/', ''));
 
             return true;
         }
 
         // Authentication was successful. For some applications, this access token may be enough for your needs.
         // For the purposes for this quickstart, we'll redirect back to Auth0 using 'silent authentication' (prompt=none) to get an Id Token.
-        $router->redirect($this->app->getSdk()->login($router->getUri(path: '/callback', query: 'passwordless=complete'), ['prompt' => 'none']));
+        $router->redirect($this->app->getSdk()->login($router->getUri('/callback', 'passwordless=complete'), ['prompt' => 'none']));
 
         return true;
     }
