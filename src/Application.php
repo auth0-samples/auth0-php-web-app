@@ -211,10 +211,8 @@ final class Application
         $event = $this->exampleHooks['onCallbackRoute'] ?? null;
 
         if ($event === null || $event($router) === null) {
-            $this->sdk->exchange(
-                // Inform Auth0 we want to redirect to our /callback route, so we can perform the code exchange and setup the user session there.
-                redirectUri: $router->getUri('/callback', '')
-            );
+            // Inform Auth0 we want to redirect to our /callback route, so we can perform the code exchange and setup the user session there.
+            $this->sdk->exchange($router->getUri('/callback', ''));
 
             // Redirect to your application's index route.
             $router->redirect($router->getUri('/', ''));
