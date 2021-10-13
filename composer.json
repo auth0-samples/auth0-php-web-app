@@ -2,8 +2,8 @@
   "name": "auth0-samples/auth0-php-web-app",
   "description": "Auth0 Integration Samples for PHP Web Applications.",
   "require": {
-    "php": "^8.0",
-    "auth0/auth0-php": "8.0.0",
+    "php": "^7.4 | ^8.0",
+    "auth0/auth0-php": "^8.0",
     "guzzlehttp/guzzle": "^7.3",
     "guzzlehttp/psr7": "^1.8",
     "http-interop/http-factory-guzzle": "^1.0",

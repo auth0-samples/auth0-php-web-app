@@ -54,6 +54,14 @@ commands:
           command: php ./vendor/bin/psalm --no-cache
 
 jobs:
+  php_7_4:
+    docker:
+      - image: circleci/php:7.4
+    steps:
+      - prepare
+      - run-phpinsights
+      - run-phpstan
+      - run-psalm
   php_8_0:
     docker:
       - image: circleci/php:8.0
@@ -62,7 +70,6 @@ jobs:
       - run-phpinsights
       - run-phpstan
       - run-psalm
-
   snyk:
     docker:
       - image: snyk/snyk-cli:composer
@@ -70,21 +77,16 @@ jobs:
       - attach_workspace:
           at: .
       - run: snyk test
-      - run:
-          command: |
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]
-            then
-            snyk monitor --org=auth0-sdks
-            fi
-          when: always
 
 workflows:
   test-php-versions:
     jobs:
+      - php_7_4
       - php_8_0
 
   vulnerability-check:
     jobs:
+      - php_7_4
       - php_8_0
       - snyk:
           filters:

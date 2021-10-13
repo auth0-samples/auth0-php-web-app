@@ -77,13 +77,12 @@ final class Management implements QuickstartExample
 
             $profile = $this->getProfile($api, $session->user['sub']);
 
-            $this->app->getTemplate()->render(
-                template: 'management',
-                session: $session,
-                router: $router,
-                cookies: $_COOKIE,
-                managementUserProfile: $profile
-            );
+            $this->app->getTemplate()->render('management', [
+                'session' => $session,
+                'router' => $router,
+                'cookies' => $_COOKIE,
+                'managementUserProfile' => $profile,
+            ]);
 
             return true;
         }

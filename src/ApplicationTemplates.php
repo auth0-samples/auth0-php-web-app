@@ -39,11 +39,11 @@ final class ApplicationTemplates
      * Render a template as the browser response, then exit.
      *
      * @param string $template The name of the template to use.
-     * @param mixed $variables Any variables the template should have access to use.
+     * @param array<mixed> $variables Any variables the template should have access to use.
      */
     public function render(
         string $template,
-        ...$variables
+        array $variables = []
     ): void {
         $this->state = [
             'sections' => [],
@@ -99,10 +99,7 @@ final class ApplicationTemplates
                 $this->state['sections']['content'] = $content;
                 $this->state['layout'] = null;
 
-                $content = $this->renderTemplate(
-                    template: $layoutTemplate,
-                    variables: $layoutVariables
-                );
+                $content = $this->renderTemplate($layoutTemplate, $layoutVariables);
             }
 
             if ($content !== false) {
@@ -168,11 +165,11 @@ final class ApplicationTemplates
      * Define a container layout in which to render a template.
      *
      * @param string $name The name of the layout template to use.
-     * @param mixed $variables Any additional variables the layout template should have access to use.
+     * @param array<mixed> $variables Any additional variables the layout template should have access to use.
      */
     private function layout(
         string $name,
-        ...$variables
+        array $variables = []
     ): void {
         $this->state['layout'] = [
             'name' => $name,
