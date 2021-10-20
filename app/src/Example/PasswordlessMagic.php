@@ -44,7 +44,7 @@ final class PasswordlessMagic implements QuickstartExample
             $email = filter_var($_POST['passwordless_email'], FILTER_SANITIZE_EMAIL);
 
             if ($email === false) {
-                $router->redirect($router->getUri( '/', ''));
+                $router->redirect($router->getUri('/', ''));
 
                 return true;
             }
@@ -76,7 +76,7 @@ final class PasswordlessMagic implements QuickstartExample
         $this->app->getTemplate()->render('passwordless-magic-login', [
             'startedPasswordless' => $startedPasswordless,
             'router' => $router,
-            'cookies' => $_COOKIE
+            'cookies' => $_COOKIE,
         ]);
 
         return true;
