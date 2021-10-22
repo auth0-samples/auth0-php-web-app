@@ -2,4 +2,3 @@ app/vendor
 app/.env
 app/composer.lock
 .DS_Store
-.env

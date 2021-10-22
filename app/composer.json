@@ -26,8 +26,23 @@
   "scripts": {
     "app": [
       "Composer\\Config::disableProcessTimeout",
+      "@pre-run-app",
       "composer install --no-dev",
       "php -S 127.0.0.1:3000 public/index.php"
+    ],
+    "docker": [
+      "Composer\\Config::disableProcessTimeout",
+      "@pre-run-app",
+      "docker-compose run install",
+      "docker-compose run --rm --service-ports quickstart"
+    ],
+    "tests": [
+      "Composer\\Config::disableProcessTimeout",
+      "@pre-run-app",
+      "docker-compose run --rm tests"
+    ],
+    "pre-run-app": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
     ]
   },
   "license": "MIT"

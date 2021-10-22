@@ -2,133 +2,97 @@ version: 2.1
 
 commands:
   prepare:
-    setup:
-      - run:
-          name: Configure environment
-          command: |
-            apk update
-
+    steps:
       - checkout
-
       - run:
           name: Perform composer self-update
           command: sudo composer self-update
-
+      - restore_cache:
+          keys:
+            - composer-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "composer.json" }}
+            - composer-v1-{{ .Environment.CIRCLE_JOB }}
       - run:
-          name: Install dependencies
+          name: Enable code coverage
           command: |
-            EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
-            php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-            ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
-
-            if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]; then
-                >&2 echo 'ERROR: Invalid installer checksum'
-                rm composer-setup.php
-                exit 1
-            fi
-
-            php composer-setup.php --quiet
-            RESULT=$?
-            rm composer-setup.php
-
-            php composer.phar install --no-interaction --prefer-dist
-
-  setup-pcov:
-    steps:
+            sudo pecl install pcov
+            sudo docker-php-ext-enable pcov
+            sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+            sudo docker-php-ext-install posix
+            sudo docker-php-ext-install pcntl
       - run:
-          name: Setup code coverage (PCOV)
-          command: |
-            apk add autoconf gcc make musl-dev
-            pecl install pcov
-            docker-php-ext-enable pcov
+          name: Install composer dependencies
+          command: composer install -n --prefer-dist
+      - run:
+          name: Update composer dependencies
+          command: composer update --prefer-dist --no-interaction
+      - persist_to_workspace:
+          root: .
+          paths:
+            - composer.*
+            - .snyk
+      - save_cache:
+          key: composer-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "composer.json" }}
+          paths:
+            - vendor
 
   run-phpinsights:
     steps:
       - run:
-          name: Run code quality analysis (PHP Insights)
-          command: php -d memory-limit=-1 ./vendor/bin/phpinsights -v --no-interaction --min-quality=100 --min-complexity=50 --min-architecture=100 --min-style=100
+          name: Run PHP Insights code quality analysis
+          command: php ./vendor/bin/phpinsights -v --no-interaction
 
   run-phpstan:
     steps:
       - run:
-          name: Run static code analysis (PHPStan)
-          command: php -d memory_limit=-1 ./vendor/bin/phpstan analyse --ansi
+          name: Run PHPStan static code analysis
+          command: php ./vendor/bin/phpstan analyse --ansi --memory-limit 512M
 
   run-psalm:
     steps:
       - run:
-          name: Run static code analysis (Psalm)
-          command: php -d memory_limit=-1 ./vendor/bin/psalm
-
-  run-snyk:
-    steps:
-      - run:
-          name: Run vulnerabilities tests (Snyk)
-          command: |
-            apk add npm
-            npm install -g snyk
-            snyk test --dev --org=auth0-sdks --project-name=auth0-PHP
+          name: Run Psalm static code analysis
+          command: php ./vendor/bin/psalm --no-cache
 
 jobs:
-  phpinsights:
-    parameters:
-      php:
-        type: string
+  php_7_4:
     docker:
-      - image: php:<< parameters.php >>-cli-alpine
+      - image: circleci/php:7.4
     steps:
-      - setup
+      - prepare
       - run-phpinsights
-  phpstan:
-    parameters:
-      php:
-        type: string
-    docker:
-      - image: php:<< parameters.php >>-cli-alpine
-    steps:
-      - setup
       - run-phpstan
-  psalm:
-    parameters:
-      php:
-        type: string
+      - run-psalm
+  php_8_0:
     docker:
-      - image: php:<< parameters.php >>-cli-alpine
+      - image: circleci/php:8.0
     steps:
-      - setup
+      - prepare
+      - run-phpinsights
+      - run-phpstan
       - run-psalm
   snyk:
-    parameters:
-      php:
-        type: string
     docker:
-      - image: php:<< parameters.php >>-cli-alpine
+      - image: snyk/snyk-cli:composer
     steps:
-      - setup
-      - run-snyk
+      - attach_workspace:
+          at: .
+      - run: snyk test
 
 workflows:
-  test:
+  test-php-versions:
     jobs:
-      - phpinsights:
-          matrix:
-            parameters:
-              php: ["7.4", "8.0"]
-      - phpstan:
-          matrix:
-            parameters:
-              php: ["7.4", "8.0"]
-      - psalm:
-          matrix:
-            parameters:
-              php: ["7.4", "8.0"]
-      - hold:
-          type: approval
+      - php_7_4
+      - php_8_0
+
+  vulnerability-check:
+    jobs:
+      - php_7_4
+      - php_8_0
       - snyk:
-          matrix:
-            parameters:
-              php: ["7.4", "8.0"]
-          context:
-            - snyk-env
+          filters:
+            branches:
+              only:
+                - master
+          context: snyk-env
           requires:
-            - hold
+            - php_8_0
