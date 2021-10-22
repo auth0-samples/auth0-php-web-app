@@ -34,14 +34,6 @@ final class Management implements QuickstartExample
         return $this;
     }
 
-    /**
-     * Query the users endpoint and retrieve details about a user.
-     *
-     * @param ManagementAPI $api An instance of the ManagementAPI to issue the request through.
-     * @param string        $sub The user identifier to query.
-     *
-     * @return array<mixed>|null
-     */
     public function getProfile(
         ManagementAPI $api,
         string $sub
@@ -49,32 +41,24 @@ final class Management implements QuickstartExample
         $response = $api->users()->get($sub);
 
         if (! HttpResponse::wasSuccessful($response)) {
-            die('Management API request failed. Unable to get user.');
+            die("Management API request failed. Unable to get user.");
         }
 
         return HttpResponse::decodeContent($response);
     }
 
-    /**
-     * Update the user_metadata of a user, as a demonstration the process.
-     *
-     * @param ManagementAPI $api An instance of the ManagementAPI to issue the request through.
-     * @param string        $sub The user identifier to update metadata for.
-     *
-     * @return array<mixed>|null
-     */
     public function updateProfile(
         ManagementAPI $api,
         string $sub
     ): ?array {
         $response = $api->users()->update($sub, [
             'user_metadata' => [
-                'quickstart_example' => 'Updated ' . date(DATE_RFC2822, time()) . ' using the auth-PHP SDK quickstart!',
-            ],
+                'quickstart_example' => 'Updated ' . date(DATE_RFC2822, time()) . ' using the auth-PHP SDK quickstart!'
+            ]
         ]);
 
         if (! HttpResponse::wasSuccessful($response)) {
-            die('Management API request failed. Unable to update user.');
+            die("Management API request failed. Unable to update user.");
         }
 
         return HttpResponse::decodeContent($response);
@@ -83,12 +67,12 @@ final class Management implements QuickstartExample
     public function onIndexRoute(
         ApplicationRouter $router,
         ?\stdClass $session
-    ): ?bool {
+    ) {
         if ($session !== null) {
             $api = $this->app->getSdk()->management();
 
             if ($router->getMethod() === 'POST') {
-                $this->updateProfile($api, $session->user['sub']);
+                $profile = $this->updateProfile($api, $session->user['sub']);
             }
 
             $profile = $this->getProfile($api, $session->user['sub']);
