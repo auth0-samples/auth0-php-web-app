@@ -17,6 +17,6 @@ parameters:
 
     bootstrapFiles:
         - %rootDir%/../../squizlabs/php_codesniffer/autoload.php
-        - tests/bootstrap.php
+        - public/bootstrap.php
 
     reportUnmatchedIgnoredErrors: false

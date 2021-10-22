@@ -8,7 +8,6 @@
 >
     <stubs>
       <file name="public/index.php" />
-      <file name="tests/bootstrap.php" />
     </stubs>
 
     <projectFiles>
