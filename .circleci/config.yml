@@ -1,0 +1,22 @@
+version: 2.1
+
+commands:
+  prepare:
+    steps:
+      - checkout
+
+jobs:
+  php_7_4:
+    docker:
+      - image: circleci/php:7.4
+    steps:
+      - prepare
+
+workflows:
+  test-php-versions:
+    jobs:
+      - php_7_4
+
+  vulnerability-check:
+    jobs:
+      - php_7_4
