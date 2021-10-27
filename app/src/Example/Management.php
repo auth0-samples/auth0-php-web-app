@@ -56,7 +56,7 @@ final class Management implements QuickstartExample
     }
 
     /**
-     * Update the user_metadata of a user, as a demonstration the process.
+     * Update the user_metadata of a user, as a demonstration of the process.
      *
      * @param ManagementAPI $api An instance of the ManagementAPI to issue the request through.
      * @param string        $sub The user identifier to update metadata for.
