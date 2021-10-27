@@ -11,11 +11,12 @@ parameters:
     ignoreErrors:
         - '#Call to an undefined method object::(.*)\(\)#'
         - '#Method (.*) has parameter (.*) with a nullable type declaration.#'
+        - '#Method (.*) has a nullable return type declaration.#'
         - '#Method (.*) has parameter (.*) with null as default value.#'
         - '#you should not use the \$_COOKIE superglobal.#'
 
     bootstrapFiles:
         - %rootDir%/../../squizlabs/php_codesniffer/autoload.php
-        - public/bootstrap.php
+        - tests/bootstrap.php
 
     reportUnmatchedIgnoredErrors: false
