@@ -31,6 +31,7 @@ return [
         \SlevomatCodingStandard\Sniffs\Variables\UnusedVariableSniff::class => [
             'exclude' => [
                 'src\ApplicationTemplates.php',
+                'src/ApplicationTemplates.php',
             ],
         ],
         \SlevomatCodingStandard\Sniffs\Classes\RequireMultiLineMethodSignatureSniff::class => [
