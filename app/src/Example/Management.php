@@ -7,7 +7,7 @@ namespace Auth0\Quickstart\Example;
 use Auth0\Quickstart\Application;
 use Auth0\Quickstart\ApplicationRouter;
 use Auth0\Quickstart\Contract\QuickstartExample;
-use Auth0\SDK\API\Management as ManagementAPI;
+use Auth0\SDK\Contract\API\ManagementInterface as ManagementAPI;
 use Auth0\SDK\Utility\HttpResponse;
 
 /**

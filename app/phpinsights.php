@@ -7,9 +7,8 @@ return [
     'ide' => null,
 
     'exclude' => [
-        'tests',
+        'public/bootstrap.php',
         'templates',
-        'phpinsights.php'
     ],
 
     'add' => [
@@ -21,28 +20,17 @@ return [
     'remove' => [
         \NunoMaduro\PhpInsights\Domain\Insights\CyclomaticComplexityIsHigh::class,
         \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenGlobals::class,
-        \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenNormalClasses::class,
-        \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenTraits::class,
         \NunoMaduro\PhpInsights\Domain\Sniffs\ForbiddenSetterSniff::class,
-        \ObjectCalisthenics\Sniffs\Files\ClassTraitAndInterfaceLengthSniff::class,
         \ObjectCalisthenics\Sniffs\Files\FunctionLengthSniff::class,
-        \ObjectCalisthenics\Sniffs\Metrics\MethodPerClassLimitSniff::class,
-        \ObjectCalisthenics\Sniffs\Metrics\MaxNestingLevelSniff::class,
         \PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff::class,
-        \PHP_CodeSniffer\Standards\Generic\Sniffs\Commenting\TodoSniff::class,
-        \SlevomatCodingStandard\Sniffs\Classes\SuperfluousExceptionNamingSniff::class,
-        \SlevomatCodingStandard\Sniffs\Classes\SuperfluousInterfaceNamingSniff::class,
-        \SlevomatCodingStandard\Sniffs\Classes\UnusedPrivateElementsSniff::class,
         \SlevomatCodingStandard\Sniffs\Functions\FunctionLengthSniff::class,
         \SlevomatCodingStandard\Sniffs\TypeHints\DisallowMixedTypeHintSniff::class,
-        \SlevomatCodingStandard\Sniffs\TypeHints\ParameterTypeHintSniff::class,
-        \SlevomatCodingStandard\Sniffs\TypeHints\PropertyTypeHintSniff::class,
-        \SlevomatCodingStandard\Sniffs\TypeHints\ReturnTypeHintSniff::class,
     ],
 
     'config' => [
         \SlevomatCodingStandard\Sniffs\Variables\UnusedVariableSniff::class => [
             'exclude' => [
+                'src\ApplicationTemplates.php',
                 'src/ApplicationTemplates.php',
             ],
         ],
@@ -52,10 +40,10 @@ return [
     ],
 
     'requirements' => [
-        'min-quality' => 100,
+        'min-quality' => 90,
         'min-complexity' => 50,
-        'min-architecture' => 100,
-        'min-style' => 100,
+        'min-architecture' => 90,
+        'min-style' => 90,
         'disable-security-check' => false,
     ],
 ];
