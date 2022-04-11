@@ -116,8 +116,8 @@ jobs:
     docker:
       - image: returntocorp/semgrep-agent:v1
     environment:
-      SEMGREP_REPO_NAME: "auth0-samples/auth0-php-api-samples"
-      SEMGREP_REPO_URL: "https://github.com/auth0-samples/auth0-php-api-samples"
+      SEMGREP_REPO_NAME: "auth0-samples/auth0-php-web-app"
+      SEMGREP_REPO_URL: "https://github.com/auth0-samples/auth0-php-web-app"
     steps:
       - checkout
       - run:
