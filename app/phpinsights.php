@@ -7,9 +7,8 @@ return [
     'ide' => null,
 
     'exclude' => [
-        'tests',
+        'public/bootstrap.php',
         'templates',
-        'phpinsights.php'
     ],
 
     'add' => [
@@ -41,9 +40,17 @@ return [
     ],
 
     'config' => [
-        \SlevomatCodingStandard\Sniffs\Variables\UnusedVariableSniff::class => [
+        \PHP_CodeSniffer\Standards\Generic\Sniffs\PHP\DeprecatedFunctionsSniff::class => [
+            'exclude' => [
+            ],
+        ],
+        \SlevomatCodingStandard\Sniffs\Functions\UnusedParameterSniff::class => [
             'exclude' => [
                 'src/ApplicationTemplates.php',
+            ],
+        ],
+        \SlevomatCodingStandard\Sniffs\Classes\ModernClassNameReferenceSniff::class => [
+            'exclude' => [
             ],
         ],
         \SlevomatCodingStandard\Sniffs\Classes\RequireMultiLineMethodSignatureSniff::class => [
@@ -52,10 +59,10 @@ return [
     ],
 
     'requirements' => [
-        'min-quality' => 100,
+        'min-quality' => 90,
         'min-complexity' => 50,
-        'min-architecture' => 100,
-        'min-style' => 100,
+        'min-architecture' => 90,
+        'min-style' => 90,
         'disable-security-check' => false,
     ],
 ];
