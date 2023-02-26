@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
     quickstart:
-        image: php:8.0-cli-alpine
+        image: php:8.1-cli-alpine
         volumes:
             - ./:/app
         working_dir: /app
