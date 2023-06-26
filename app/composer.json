@@ -2,7 +2,7 @@
     "name": "auth0-samples/auth0-php-web-app",
     "description": "Auth0 Integration Samples for PHP Web Applications.",
     "require": {
-        "php": "^7.4 | ^8.0",
+        "php": "^8.0",
         "auth0/auth0-php": "^8.0",
         "guzzlehttp/guzzle": "^7.3",
         "guzzlehttp/psr7": "^2.2",
@@ -12,34 +12,52 @@
         "vlucas/phpdotenv": "^5.3"
     },
     "require-dev": {
-        "nunomaduro/phpinsights": "^2.0",
-        "phpstan/phpstan": "^0.12",
-        "phpstan/phpstan-strict-rules": "^0.12"
+        "friendsofphp/php-cs-fixer": "^3",
+        "mockery/mockery": "^1",
+        "nunomaduro/larastan": "^2",
+        "orchestra/testbench": "^7 || ^8",
+        "pestphp/pest": "^2",
+        "pestphp/pest-plugin-laravel": "^2",
+        "phpstan/phpstan": "^1",
+        "phpstan/phpstan-strict-rules": "^1",
+        "psalm/plugin-laravel": "^2",
+        "rector/rector": "0.17.0",
+        "spatie/laravel-ray": "^1",
+        "squizlabs/php_codesniffer": "^3",
+        "symfony/cache": "^6",
+        "vimeo/psalm": "^5",
+        "wikimedia/composer-merge-plugin": "^2"
     },
     "config": {
         "optimize-autoloader": true,
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "friendsofphp/well-known-implementations": false,
+            "wikimedia/composer-merge-plugin": true,
+            "php-http/discovery": false,
+            "pestphp/pest-plugin": true
+        }
     },
     "scripts": {
-        "app": [
+        "pest:coverage": "@php vendor/bin/pest --coverage --parallel --no-progress",
+        "pest:debug": "@php vendor/bin/pest --fail-on-risky --stop-on-defect",
+        "pest:profile": "@php vendor/bin/pest --profile",
+        "pest": "@php vendor/bin/pest --order-by random --fail-on-risky --stop-on-defect --coverage --parallel",
+        "phpcs:fix": "@php vendor/bin/php-cs-fixer fix",
+        "phpcs": "@php vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "phpstan": "@php vendor/bin/phpstan analyze",
+        "psalm:fix": "@php vendor/bin/psalter --issues=all",
+        "psalm": "@php vendor/bin/psalm",
+        "rector:fix": "@php vendor/bin/rector process src",
+        "rector": "@php vendor/bin/rector process src --dry-run",
+        "test": [
             "Composer\\Config::disableProcessTimeout",
-            "@pre-run-app",
-            "composer install --no-dev",
-            "php -S 127.0.0.1:3000 public/index.php"
-        ],
-        "docker": [
-            "Composer\\Config::disableProcessTimeout",
-            "@pre-run-app",
-            "docker-compose run install",
-            "docker-compose run --rm --service-ports quickstart"
-        ],
-        "tests": [
-            "Composer\\Config::disableProcessTimeout",
-            "@pre-run-app",
-            "docker-compose run --rm tests"
-        ],
-        "pre-run-app": [
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+            "@pest",
+            "@phpstan",
+            "@psalm",
+            "@rector",
+            "@phpcs"
         ]
     },
     "license": "MIT"

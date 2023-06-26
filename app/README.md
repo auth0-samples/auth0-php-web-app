@@ -39,6 +39,14 @@ AUTH0_COOKIE_SECRET='LONG_RANDOM_VALUE'
 
 **Note**: Ensure you are consistent in your use of 'localhost' and/or '127.0.0.1' when testing. These must match your Auth0 Application settings or you will encounter errors. They must also match for session cookies to work correctly.
 
+## Install dependencies
+
+Please ensure you have [Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-macos) installed and accessible from your shell. This is required.
+
+```bash
+composer install --no-dev
+```
+
 ## Run the sample
 
 Before continuing, please ensure you have [PHP](https://www.php.net/manual/en/install.php) 7.4+ and [Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-macos) installed and accessible from your shell. These are required.
@@ -46,30 +54,10 @@ Before continuing, please ensure you have [PHP](https://www.php.net/manual/en/in
 Next, use the following command to install the necessary dependencies and start the sample:
 
 ```bash
-composer run app
+php -S 127.0.0.1:3000 public/index.php
 ```
 
 Your Quickstart should now be accessible at [http://127.0.0.1:3000/](http://127.0.0.1:3000/) from your web browser.
-
-## Running with Docker
-
-Before continuing, make sure you have [Docker](https://docs.docker.com/get-docker/) installed. This is required.
-
-Next, use the following command to install the necessary dependencies and start the sample within a Docker container:
-
-```bash
-composer run docker
-```
-
-Your Quickstart should now be accessible at [http://127.0.0.1:3000/](http://127.0.0.1:3000/) from your web browser.
-
-## Running the unit tests
-
-Unit tests are setup to run through [Docker](https://docs.docker.com/get-docker/) for portability. Use the following command to install the necessary dependencies and start the sample test suite:
-
-```bash
-composer run tests
-```
 
 ## Vulnerability Reporting
 

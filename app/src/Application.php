@@ -16,24 +16,9 @@ final class Application
     private SdkConfiguration $configuration;
 
     /**
-     * An instance of the Auth0 SDK.
-     */
-    private Auth0 $sdk;
-
-    /**
-     * An instance of our application's template rendering helper class, for sending responses.
-     */
-    private ApplicationTemplates $templates;
-
-    /**
      * An instance of our application's error handling class, for gracefully reporting exceptions.
      */
     private ApplicationErrorHandler $errorHandler;
-
-    /**
-     * An instance of our application's router class, for handling end-user requests to URIs.
-     */
-    private ApplicationRouter $router;
 
     /**
      * An instance of a QuickstartExample class, specified from the AUTH0_USE_EXAMPLE env.
@@ -48,12 +33,27 @@ final class Application
     private array $exampleHooks = [];
 
     /**
+     * An instance of our application's router class, for handling end-user requests to URIs.
+     */
+    private ApplicationRouter $router;
+
+    /**
+     * An instance of the Auth0 SDK.
+     */
+    private Auth0 $sdk;
+
+    /**
+     * An instance of our application's template rendering helper class, for sending responses.
+     */
+    private ApplicationTemplates $templates;
+
+    /**
      * Setup our Quickstart application.
      *
      * @param array<string,mixed> $env Auth0 configuration imported from .env file.
      */
     public function __construct(
-        array $env
+        array $env,
     ) {
         // Configure the SDK using our .env configuration.
         $this->setupAuth0($env);
@@ -62,68 +62,6 @@ final class Application
         $this->templates = new ApplicationTemplates($this);
         $this->errorHandler = new ApplicationErrorHandler($this);
         $this->router = new ApplicationRouter($this);
-        $this->example = null;
-    }
-
-    /**
-     * Configure the Auth0 SDK using the .env configuration.
-     *
-     * @param array<string,mixed> $env Auth0 configuration imported from .env file.
-     */
-    public function setupAuth0(
-        array $env
-    ): void {
-        // Build our SdkConfiguration.
-        $this->configuration = new SdkConfiguration([
-            'domain' => $env['AUTH0_DOMAIN'] ?? null,
-            'customDomain' => $env['AUTH0_CUSTOM_DOMAIN'] ?? null,
-            'clientId' => $env['AUTH0_CLIENT_ID'] ?? null,
-            'clientSecret' => $env['AUTH0_CLIENT_SECRET'] ?? null,
-            'cookieSecret' => $env['AUTH0_COOKIE_SECRET'] ?? null,
-            'cookieExpires' => (int) ($env['AUTH0_COOKIE_EXPIRES'] ?? 60 * 60 * 24),
-            'audience' => ($env['AUTH0_AUDIENCE'] ?? null) !== null ? [trim($env['AUTH0_AUDIENCE'])] : null,
-            'organization' => ($env['AUTH0_ORGANIZATION'] ?? null) !== null ? [trim($env['AUTH0_ORGANIZATION'])] : null,
-        ]);
-
-        // Add 'offline_access' to scopes to ensure we get a renew token.
-        $this->configuration->pushScope('offline_access');
-
-        // Setup the Auth0 SDK.
-        $this->sdk = new Auth0($this->configuration);
-    }
-
-    /**
-     * "Register" a QuickstartExample class.
-     */
-    public function useExample(
-        QuickstartExample $class
-    ): self {
-        $this->example = & $class;
-        $this->example->setup();
-        return $this;
-    }
-
-    /**
-     * "Register" a QuickstartExample class.
-     */
-    public function hook(
-        string $eventName,
-        callable $callback
-    ): self {
-        $this->exampleHooks[$eventName] = $callback;
-        return $this;
-    }
-
-    /**
-     * "Run" our application, responding to end-user requests.
-     */
-    public function run(): void
-    {
-        // Intercept exceptions to gracefully report them.
-        $this->errorHandler->hook();
-
-        // Handle incoming requests through the router.
-        $this->router->run();
     }
 
     /**
@@ -167,50 +105,32 @@ final class Application
     }
 
     /**
-     * Called from the ApplicationRouter when end user loads '/'.
+     * "Register" a QuickstartExample class.
+     *
+     * @param string   $eventName
+     * @param callable $callback
      */
-    public function onIndexRoute(
-        ApplicationRouter $router
-    ): void {
-        // Retrieve current session credentials, if end user is signed in.
-        $session = $this->sdk->getCredentials();
+    public function hook(
+        string $eventName,
+        callable $callback,
+    ): self {
+        $this->exampleHooks[$eventName] = $callback;
 
-        // If a session is available, check if the token is expired.
-        // @phpstan-ignore-next-line
-        if ($session !== null && $session->accessTokenExpired) {
-            try {
-                // Token has expired, attempt to renew it.
-                $this->sdk->renew();
-            } catch (\Auth0\SDK\Exception\StateException $exception) {
-                // There was an error during access token renewal. Clear the session.
-                $this->sdk->clear();
-                $session = null;
-            }
-        }
-
-        // If you have an example class enabled ("AUTH0_EXAMPLE" in your .env file), check if a hook is setup to override default behavior:
-        $event = $this->exampleHooks['onIndexRoute'] ?? null;
-
-        if ($event === null || $event($router, $session) === null) {
-            // Send response to browser.
-            $this->templates->render('logged-' . ($session === null ? 'out' : 'in'), [
-                'session' => $session,
-                'router' => $router,
-                'cookies' => $_COOKIE,
-            ]);
-        }
+        return $this;
     }
 
     /**
      * Called from the ApplicationRouter when end user loads '/callback'.
+     *
+     * @param ApplicationRouter $router
      */
     public function onCallbackRoute(
-        ApplicationRouter $router
+        ApplicationRouter $router,
     ): void {
         // If you have an example class enabled ("AUTH0_EXAMPLE" in your .env file), check if a hook is setup to override default behavior:
         $event = $this->exampleHooks['onCallbackRoute'] ?? null;
 
-        if ($event === null || $event($router) === null) {
+        if (null === $event || null === $event($router)) {
             // Inform Auth0 we want to redirect to our /callback route, so we can perform the code exchange and setup the user session there.
             $this->sdk->exchange($router->getUri('/callback', ''));
 
@@ -220,10 +140,60 @@ final class Application
     }
 
     /**
+     * Called from the ApplicationRouter when end user loads an unknown route.
+     *
+     * @param ApplicationRouter $router
+     */
+    public function onError404(
+        ApplicationRouter $router,
+    ): void {
+        $router->setHttpStatus(404);
+    }
+
+    /**
+     * Called from the ApplicationRouter when end user loads '/'.
+     *
+     * @param ApplicationRouter $router
+     */
+    public function onIndexRoute(
+        ApplicationRouter $router,
+    ): void {
+        // Retrieve current session credentials, if end user is signed in.
+        $session = $this->sdk->getCredentials();
+
+        // If a session is available, check if the token is expired.
+        // @phpstan-ignore-next-line
+        if (null !== $session && $session->accessTokenExpired) {
+            try {
+                // Token has expired, attempt to renew it.
+                $this->sdk->renew();
+            } catch (\Auth0\SDK\Exception\StateException) {
+                // There was an error during access token renewal. Clear the session.
+                $this->sdk->clear();
+                $session = null;
+            }
+        }
+
+        // If you have an example class enabled ("AUTH0_EXAMPLE" in your .env file), check if a hook is setup to override default behavior:
+        $event = $this->exampleHooks['onIndexRoute'] ?? null;
+
+        if (null === $event || null === $event($router, $session)) {
+            // Send response to browser.
+            $this->templates->render('logged-' . (null === $session ? 'out' : 'in'), [
+                'session' => $session,
+                'router' => $router,
+                'cookies' => $_COOKIE,
+            ]);
+        }
+    }
+
+    /**
      * Called from the ApplicationRouter when end user loads '/login'.
+     *
+     * @param ApplicationRouter $router
      */
     public function onLoginRoute(
-        ApplicationRouter $router
+        ApplicationRouter $router,
     ): void {
         // Clear the local session.
         $this->sdk->clear();
@@ -231,7 +201,7 @@ final class Application
         // If you have an example class enabled ("AUTH0_EXAMPLE" in your .env file), check if a hook is setup to override default behavior:
         $event = $this->exampleHooks['onLoginRoute'] ?? null;
 
-        if ($event === null || $event($router) === null) {
+        if (null === $event || null === $event($router)) {
             // Redirect to Auth0's Universal Login page.
             $router->redirect($this->sdk->login($router->getUri('/callback', '')));
         }
@@ -239,20 +209,66 @@ final class Application
 
     /**
      * Called from the ApplicationRouter when end user loads '/logout'.
+     *
+     * @param ApplicationRouter $router
      */
     public function onLogoutRoute(
-        ApplicationRouter $router
+        ApplicationRouter $router,
     ): void {
         // Redirect to Auth0's Universal Login page.
         $router->redirect($this->sdk->logout($router->getUri('/', '')));
     }
 
     /**
-     * Called from the ApplicationRouter when end user loads an unknown route.
+     * "Run" our application, responding to end-user requests.
      */
-    public function onError404(
-        ApplicationRouter $router
+    public function run(): void
+    {
+        // Intercept exceptions to gracefully report them.
+        $this->errorHandler->hook();
+
+        // Handle incoming requests through the router.
+        $this->router->run();
+    }
+
+    /**
+     * Configure the Auth0 SDK using the .env configuration.
+     *
+     * @param array<string,mixed> $env Auth0 configuration imported from .env file.
+     */
+    public function setupAuth0(
+        array $env,
     ): void {
-        $router->setHttpStatus(404);
+        // Build our SdkConfiguration.
+        $this->configuration = new SdkConfiguration([
+            'domain' => $env['AUTH0_DOMAIN'] ?? null,
+            'customDomain' => $env['AUTH0_CUSTOM_DOMAIN'] ?? null,
+            'clientId' => $env['AUTH0_CLIENT_ID'] ?? null,
+            'clientSecret' => $env['AUTH0_CLIENT_SECRET'] ?? null,
+            'cookieSecret' => $env['AUTH0_COOKIE_SECRET'] ?? null,
+            'cookieExpires' => (int) ($env['AUTH0_COOKIE_EXPIRES'] ?? 60 * 60 * 24),
+            'audience' => ($env['AUTH0_AUDIENCE'] ?? null) !== null ? [trim($env['AUTH0_AUDIENCE'])] : null,
+            'organization' => ($env['AUTH0_ORGANIZATION'] ?? null) !== null ? [trim($env['AUTH0_ORGANIZATION'])] : null,
+        ]);
+
+        // Add 'offline_access' to scopes to ensure we get a renew token.
+        $this->configuration->pushScope('offline_access');
+
+        // Setup the Auth0 SDK.
+        $this->sdk = new Auth0($this->configuration);
+    }
+
+    /**
+     * "Register" a QuickstartExample class.
+     *
+     * @param QuickstartExample $class
+     */
+    public function useExample(
+        QuickstartExample $class,
+    ): self {
+        $this->example = &$class;
+        $this->example->setup();
+
+        return $this;
     }
 }

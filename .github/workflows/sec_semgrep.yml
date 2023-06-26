@@ -1,0 +1,38 @@
+name: "Semgrep"
+
+# This workflow will run after a pull request has been approved, and is
+# triggered as a result of the "Pull Request Approval" workflow succeeding.
+# By being executed in this manner, the workflow will have access to the
+# environment variables of the origin repository, allowing builds to
+# successfully run for forked pull requests without exposing secrets.
+
+on:
+  workflow_run:
+    workflows: ["Pull Request Approval"]
+    types:
+      - completed
+
+permissions: {}
+
+jobs:
+  wait:
+    name: "Scan"
+    runs-on: ubuntu-latest
+
+    if: github.event.workflow_run.conclusion == 'success' && contains(github.event.issue.labels.*.name, 'Approved')
+
+    semgrep:
+      runs-on: ubuntu-latest
+
+      container:
+        image: returntocorp/semgrep
+
+      steps:
+        - uses: actions/checkout@v3
+          with:
+            ref: ${{ github.event.pull_request.head.sha }}
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+
+        - run: semgrep ci
+          env:
+            SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}

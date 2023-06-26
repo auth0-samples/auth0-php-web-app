@@ -1,0 +1,40 @@
+name: "Snyk"
+
+# This workflow will run after a pull request has been approved, and is
+# triggered as a result of the "Pull Request Approval" workflow succeeding.
+# By being executed in this manner, the workflow will have access to the
+# environment variables of the origin repository, allowing builds to
+# successfully run for forked pull requests without exposing secrets.
+
+on:
+  workflow_run:
+    workflows: ["Pull Request Approval"]
+    types:
+      - completed
+
+permissions: {}
+
+jobs:
+  snyk:
+    name: "Scan"
+    runs-on: ubuntu-latest
+
+    if: github.event.workflow_run.conclusion == 'success' && contains(github.event.issue.labels.*.name, 'Approved')
+
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          coverage: none
+          extensions: mbstring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v3
+
+      - run: composer install --no-progress
+
+      - uses: snyk/actions/php@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
