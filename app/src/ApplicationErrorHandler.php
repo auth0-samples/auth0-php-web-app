@@ -7,6 +7,8 @@ namespace Auth0\Quickstart;
 use Auth0\SDK\Exception\Auth0Exception;
 use Throwable;
 
+use function array_key_exists;
+
 final class ApplicationErrorHandler
 {
     /**
@@ -20,9 +22,9 @@ final class ApplicationErrorHandler
      * @param Application $app An instance of our Quickstart Application.
      */
     public function __construct(
-        Application &$app
+        Application &$app,
     ) {
-        $this->app = & $app;
+        $this->app = &$app;
     }
 
     /**
@@ -30,7 +32,9 @@ final class ApplicationErrorHandler
      */
     public function hook(): void
     {
-        set_exception_handler([$this, 'onException']);
+        set_exception_handler(function (Throwable $throwable): void {
+            $this->onException($throwable);
+        });
     }
 
     /**
@@ -39,7 +43,7 @@ final class ApplicationErrorHandler
      * @param Throwable $throwable The throwable to report.
      */
     public function onException(
-        \Throwable $throwable
+        Throwable $throwable,
     ): void {
         $exception = $throwable;
 

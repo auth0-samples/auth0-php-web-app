@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Auth0\Quickstart;
 
+use Exception;
+use LogicException;
+use Throwable;
+
+use function array_key_exists;
+
 final class ApplicationTemplates
 {
     /**
@@ -14,9 +20,13 @@ final class ApplicationTemplates
     /**
      * State machine of the template being rendered.
      *
-     * @var array{section: string|null, sections: array<string>, layout: array{name: string, variables: array<mixed>}|null}
+     * @var array{section: null|string, sections: array<string>, layout: null|array{name: string, variables: array<mixed>}}
      */
-    private array $state;
+    private array $state = [
+        'sections' => [],
+        'section' => null,
+        'layout' => null,
+    ];
 
     /**
      * ApplicationTemplates constructor.
@@ -24,26 +34,20 @@ final class ApplicationTemplates
      * @param Application $app An instance of our Quickstart Application.
      */
     public function __construct(
-        Application &$app
+        Application &$app,
     ) {
-        $this->app = & $app;
-
-        $this->state = [
-            'sections' => [],
-            'section' => null,
-            'layout' => null,
-        ];
+        $this->app = &$app;
     }
 
     /**
      * Render a template as the browser response, then exit.
      *
-     * @param string $template The name of the template to use.
+     * @param string       $template  The name of the template to use.
      * @param array<mixed> $variables Any variables the template should have access to use.
      */
     public function render(
         string $template,
-        array $variables = []
+        array $variables = [],
     ): void {
         $this->state = [
             'sections' => [],
@@ -60,6 +64,22 @@ final class ApplicationTemplates
     }
 
     /**
+     * Define a container layout in which to render a template.
+     *
+     * @param string       $name      The name of the layout template to use.
+     * @param array<mixed> $variables Any additional variables the layout template should have access to use.
+     */
+    private function layout(
+        string $name,
+        array $variables = [],
+    ): void {
+        $this->state['layout'] = [
+            'name' => $name,
+            'variables' => $variables,
+        ];
+    }
+
+    /**
      * Render a template, and return the content as a string.
      *
      * @param string       $template  The name of the template to use.
@@ -67,21 +87,21 @@ final class ApplicationTemplates
      */
     private function renderTemplate(
         string $template,
-        array $variables
+        array $variables,
     ): string {
         // Keep track of the output buffering 'level'.
         $level = 0;
 
         // Resolve the requested template to it's file path:
-        $templatePath = join(DIRECTORY_SEPARATOR, [APP_ROOT, 'templates', $template . '.php']);
+        $templatePath = implode(DIRECTORY_SEPARATOR, [APP_ROOT, 'templates', $template . '.php']);
 
         // Extract $variables into current scope, for use in template.
         extract($variables);
         $sdkVersion = \Auth0\SDK\Auth0::VERSION;
 
-        if (file_exists($templatePath) === false) {
+        if (! file_exists($templatePath)) {
             // @phpstan-ignore-next-line
-            throw new \Exception("Template file not found: ${template}");
+            throw new Exception(sprintf('Template file not found: %s', $template));
         }
 
         try {
@@ -92,7 +112,7 @@ final class ApplicationTemplates
 
             $content = ob_get_clean();
 
-            if ($this->state['layout'] !== null) {
+            if (null !== $this->state['layout']) {
                 $layoutTemplate = $this->state['layout']['name'];
                 $layoutVariables = array_merge($variables, $this->state['layout']['variables']);
 
@@ -102,17 +122,17 @@ final class ApplicationTemplates
                 $content = $this->renderTemplate($layoutTemplate, $layoutVariables);
             }
 
-            if ($content !== false) {
+            if (false !== $content) {
                 return trim($content);
             }
 
             return '';
-        } catch (\Throwable $e) {
+        } catch (Throwable $throwable) {
             while (ob_get_level() > $level) {
                 ob_end_clean();
             }
 
-            throw $e;
+            throw $throwable;
         }
     }
 
@@ -122,7 +142,7 @@ final class ApplicationTemplates
      * @param string $sectionName Name of the section to render into the template.
      */
     private function section(
-        string $sectionName
+        string $sectionName,
     ): string {
         return $this->state['sections'][$sectionName] ?? '';
     }
@@ -133,10 +153,10 @@ final class ApplicationTemplates
      * @param string $sectionName Name of the section to begin capturing.
      */
     private function start(
-        string $sectionName
+        string $sectionName,
     ): void {
-        if ($this->state['section'] !== null) {
-            throw new \LogicException('Nested sections are not supported.');
+        if (null !== $this->state['section']) {
+            throw new LogicException('Nested sections are not supported.');
         }
 
         $this->state['section'] = $sectionName;
@@ -149,8 +169,8 @@ final class ApplicationTemplates
      */
     private function stop(): void
     {
-        if ($this->state['section'] === null) {
-            throw new \LogicException('You must start a section before stopping it.');
+        if (null === $this->state['section']) {
+            throw new LogicException('You must start a section before stopping it.');
         }
 
         if (array_key_exists($this->state['section'], $this->state['sections'])) {
@@ -159,21 +179,5 @@ final class ApplicationTemplates
 
         $this->state['sections'][$this->state['section']] = ob_get_clean();
         $this->state['section'] = null;
-    }
-
-    /**
-     * Define a container layout in which to render a template.
-     *
-     * @param string $name The name of the layout template to use.
-     * @param array<mixed> $variables Any additional variables the layout template should have access to use.
-     */
-    private function layout(
-        string $name,
-        array $variables = []
-    ): void {
-        $this->state['layout'] = [
-            'name' => $name,
-            'variables' => $variables,
-        ];
     }
 }

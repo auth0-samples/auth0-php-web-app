@@ -423,7 +423,6 @@ return static function (RectorConfig $rectorConfig): void {
         RemoveUnusedNonEmptyArrayBeforeForeachRector::class,
         RemoveUnusedPrivateClassConstantRector::class,
         RemoveUnusedPrivateMethodParameterRector::class,
-        RemoveUnusedPrivateMethodRector::class,
         RemoveUnusedPrivatePropertyRector::class,
         RemoveUnusedPromotedPropertyRector::class,
         RemoveUnusedVariableAssignRector::class,

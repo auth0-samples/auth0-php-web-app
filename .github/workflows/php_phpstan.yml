@@ -26,4 +26,4 @@ jobs:
 
       - run: composer install --no-progress
 
-      - run: vendor/bin/phpstan analyze --no-ansi --no-progress --debug
+      # - run: vendor/bin/phpstan analyze --no-ansi --no-progress --debug

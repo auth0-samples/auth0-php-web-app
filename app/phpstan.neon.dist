@@ -7,7 +7,6 @@ parameters:
 
     paths:
         - src
-        - deprecated
 
     ignoreErrors:
         - '#Method (.*) has parameter (.*) with no value type specified in iterable type array.#'

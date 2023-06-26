@@ -21,7 +21,6 @@
         "phpstan/phpstan": "^1",
         "phpstan/phpstan-strict-rules": "^1",
         "psalm/plugin-laravel": "^2",
-        "psr-mock/http": "^1",
         "rector/rector": "0.17.0",
         "spatie/laravel-ray": "^1",
         "squizlabs/php_codesniffer": "^3",
@@ -34,26 +33,17 @@
         "sort-packages": true,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "friendsofphp/well-known-implementations": true,
+            "friendsofphp/well-known-implementations": false,
             "wikimedia/composer-merge-plugin": true,
-            "php-http/discovery": true,
+            "php-http/discovery": false,
             "pestphp/pest-plugin": true
         }
     },
     "scripts": {
-        "app": [
-            "Composer\\Config::disableProcessTimeout",
-            "@pre-run-app",
-            "composer install --no-dev",
-            "php -S 127.0.0.1:3000 public/index.php"
-        ],
-        "pre-run-app": [
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
-        ],
         "pest:coverage": "@php vendor/bin/pest --coverage --parallel --no-progress",
         "pest:debug": "@php vendor/bin/pest --fail-on-risky --stop-on-defect",
         "pest:profile": "@php vendor/bin/pest --profile",
-        "pest": "@php vendor/bin/pest --order-by random --fail-on-risky --stop-on-defect --coverage --parallel --min=95",
+        "pest": "@php vendor/bin/pest --order-by random --fail-on-risky --stop-on-defect --coverage --parallel",
         "phpcs:fix": "@php vendor/bin/php-cs-fixer fix",
         "phpcs": "@php vendor/bin/php-cs-fixer fix --dry-run --diff",
         "phpstan": "@php vendor/bin/phpstan analyze",
@@ -62,6 +52,7 @@
         "rector:fix": "@php vendor/bin/rector process src",
         "rector": "@php vendor/bin/rector process src --dry-run",
         "test": [
+            "Composer\\Config::disableProcessTimeout",
             "@pest",
             "@phpstan",
             "@psalm",

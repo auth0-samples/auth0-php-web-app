@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Auth0\Quickstart;
 
+use function array_key_exists;
+
 final class ApplicationRouter
 {
     /**
@@ -17,9 +19,80 @@ final class ApplicationRouter
      * @param Application $app An instance of our Quickstart Application.
      */
     public function __construct(
-        Application &$app
+        Application &$app,
     ) {
-        $this->app = & $app;
+        $this->app = &$app;
+    }
+
+    /**
+     * Return the request method (GET, POST, etc.).
+     */
+    public function getMethod(): string
+    {
+        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    }
+
+    /**
+     * Return (and optionally manipulate) the currently requested uri.
+     *
+     * @param null|string $path  Unless null, manipulates the resulting path to match the value.
+     * @param null|string $query Unless, manipulates the resulting query to match the value.
+     */
+    public function getUri(
+        ?string $path = null,
+        ?string $query = null,
+    ): string {
+        $httpScheme = $_SERVER['HTTPS'] ?? '';
+        $httpScheme = 'on' === $httpScheme ? 'https' : 'http';
+
+        $httpPort = (int) $_SERVER['SERVER_PORT'];
+        $httpHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'];
+        $httpHost = preg_replace('/\:' . $httpPort . '$/', '', $httpHost);
+
+        $httpRequest = (string) $_SERVER['REQUEST_URI'];
+        $httpUri = $httpScheme . '://' . $httpHost . (80 !== $httpPort ? ':' . $httpPort : '') . $httpRequest;
+
+        // If we aren't making changes, simply return the uri.
+        if (null === $path && null === $query) {
+            return $httpUri;
+        }
+
+        // Parse a url into it's components so we can manipulate them more easily.
+        $parsedUri = parse_url($httpUri);
+
+        if (false === $parsedUri) {
+            return $httpUri;
+        }
+
+        $parsedUri['scheme'] ??= 'http';
+        $parsedUri['host'] ??= $httpHost;
+        $parsedUri['path'] ??= '';
+        $parsedUri['query'] = '?' . ($parsedUri['query'] ?? '');
+
+        // Manipulate the /path portion of the uri.
+        if (null !== $path) {
+            $parsedUri['path'] = $path;
+        }
+
+        // Manipulate the ?query portion of the uri.
+        if (null !== $query) {
+            $parsedUri['query'] = $query;
+        }
+
+        if (! array_key_exists('port', $parsedUri)) {
+            $parsedUri['port'] = 80;
+        }
+
+        if ('?' === $parsedUri['query']) {
+            $parsedUri['query'] = '';
+        }
+
+        if ('' !== $parsedUri['query']) {
+            $parsedUri['query'] = '?' . $parsedUri['query'];
+        }
+
+        // Reconstruct the manipulated uri and return it.
+        return $parsedUri['scheme'] . '://' . $parsedUri['host'] . (80 !== $parsedUri['port'] ? ':' . $parsedUri['port'] : '') . $parsedUri['path'] . $parsedUri['query'];
     }
 
     /**
@@ -28,7 +101,7 @@ final class ApplicationRouter
      * @param string $uri The new uri to redirect the end user to.
      */
     public function redirect(
-        string $uri
+        string $uri,
     ): void {
         header('Location: ' . $uri, true, 303);
         exit;
@@ -46,100 +119,31 @@ final class ApplicationRouter
 
         $routed = false;
 
-        if ($requestUri === '/') {
+        if ('/' === $requestUri) {
             $this->app->onIndexRoute($this);
             $routed = true;
         }
 
-        if ($requestUri === '/callback') {
+        if ('/callback' === $requestUri) {
             $this->app->onCallbackRoute($this);
             $routed = true;
         }
 
-        if ($requestUri === '/login') {
+        if ('/login' === $requestUri) {
             $this->app->onLoginRoute($this);
             $routed = true;
         }
 
-        if ($requestUri === '/logout') {
+        if ('/logout' === $requestUri) {
             $this->app->onLogoutRoute($this);
             $routed = true;
         }
 
-        if ($routed === false) {
+        if (false === $routed) {
             $this->app->onError404($this);
         }
 
         exit;
-    }
-
-    /**
-     * Return (and optionally manipulate) the currently requested uri.
-     *
-     * @param string|null $path  Unless null, manipulates the resulting path to match the value.
-     * @param string|null $query Unless, manipulates the resulting query to match the value.
-     */
-    public function getUri(
-        ?string $path = null,
-        ?string $query = null
-    ): string {
-        $httpScheme = $_SERVER['HTTPS'] ?? '';
-        $httpScheme = $httpScheme === 'on' ? 'https' : 'http';
-        $httpPort = (int) $_SERVER['SERVER_PORT'];
-        $httpHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'];
-        $httpHost = preg_replace('/\:' . $httpPort . '$/', '', $httpHost);
-        $httpRequest = (string) $_SERVER['REQUEST_URI'];
-        $httpUri = $httpScheme . '://' . $httpHost . ($httpPort !== 80 ? ':' . $httpPort : '') . $httpRequest;
-
-        // If we aren't making changes, simply return the uri.
-        if ($path === null && $query === null) {
-            return $httpUri;
-        }
-
-        // Parse a url into it's components so we can manipulate them more easily.
-        $parsedUri = parse_url($httpUri);
-
-        if ($parsedUri === false) {
-            return $httpUri;
-        }
-
-        $parsedUri['scheme'] = $parsedUri['scheme'] ?? 'http';
-        $parsedUri['host'] = $parsedUri['host'] ?? $httpHost;
-        $parsedUri['path'] = $parsedUri['path'] ?? '';
-        $parsedUri['query'] = '?' . ($parsedUri['query'] ?? '');
-
-        // Manipulate the /path portion of the uri.
-        if ($path !== null) {
-            $parsedUri['path'] = $path;
-        }
-
-        // Manipulate the ?query portion of the uri.
-        if ($query !== null) {
-            $parsedUri['query'] = $query;
-        }
-
-        if (! array_key_exists('port', $parsedUri)) {
-            $parsedUri['port'] = 80;
-        }
-
-        if ($parsedUri['query'] === '?') {
-            $parsedUri['query'] = '';
-        }
-
-        if ($parsedUri['query'] !== '') {
-            $parsedUri['query'] = '?' . $parsedUri['query'];
-        }
-
-        // Reconstruct the manipulated uri and return it.
-        return $parsedUri['scheme'] . '://' . $parsedUri['host'] . ($parsedUri['port'] !== 80 ? ':' . $parsedUri['port'] : '') . $parsedUri['path'] . $parsedUri['query'];
-    }
-
-    /**
-     * Return the request method (GET, POST, etc.)
-     */
-    public function getMethod(): string
-    {
-        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
     }
 
     /**
@@ -157,7 +161,7 @@ final class ApplicationRouter
      * @param int $status The HTTP status code to send.
      */
     public function setHttpStatus(
-        int $status
+        int $status,
     ): void {
         http_response_code($status);
     }
