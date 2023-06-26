@@ -8,6 +8,10 @@ on:
 
 permissions: {}
 
+defaults:
+  run:
+    working-directory: app
+
 jobs:
   snyk:
     name: "Scan"
