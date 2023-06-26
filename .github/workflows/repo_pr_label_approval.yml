@@ -1,0 +1,29 @@
+name: "Pull Request Labels (Apply Approval)"
+
+# This workflow will run after a pull request has been approved, and is
+# triggered as a result of the "Pull Request Changes" workflow succeeding.
+# By being executed in this manner, the workflow will have access to the
+# environment variables of the origin repository, allowing builds to
+# successfully run for forked pull requests without exposing secrets.
+
+on:
+  workflow_run:
+    workflows: ["Pull Request Approval"]
+    types:
+      - completed
+
+permissions:
+  # We are modifying labels, and need write access to do so.
+  pull-requests: write
+
+jobs:
+  wait:
+    name: "Applying"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: Approved
